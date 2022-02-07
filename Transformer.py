@@ -14,6 +14,7 @@ class PositionalEncoding(tf.keras.layers.Layer):
 
     def get_angles(self, position, i, d_model):
         angles = 1 / tf.pow(10000, (2 * (i // 2)) / tf.cast(d_model, tf.float32))
+
         return position * angles
 
     def positional_encoding(self, position, d_model):
@@ -51,20 +52,27 @@ class MultiHeadAttention(tf.keras.layers.Layer):
         self.W_Q = tf.keras.layers.Dense(units = self.d_model)
         self.W_K = tf.keras.layers.Dense(units = self.d_model)
         self.W_V = tf.keras.layers.Dense(units = self.d_model)
+        self.W_O = tf.keras.layers.Dense(units = self.d_model)
 
     def split_heads(self, input, batch_size):
         # 우선 하나만 구현해보자.
         ret = tf.reshape(input, shape=(batch_size, -1, self.num_heads, self.d_depth))          # (batch, -1, 8, 64)
+
         return tf.transpose(input, perm=[0, 2, 1, 3])
 
-    def scaled_dot_attention(self, query, key, value):                  # tf.keras.layers.Attention을 사용해도 됨.
+    def scaled_dot_attention(self, query, key, value, mask=None):                  # tf.keras.layers.Attention을 사용해도 됨.
         # query, key, value의 dimension: (batch_size, num_heads, seq_length, d_depth)
-        score = tf.matmul(query, key, transpose_b=True) / tf.math.sqrt(self.d_depth)
-        score = tf.nn.softmax(score, axis=1)
+        depth = tf.cast(self.d_depth, tf.dtypes.float32)
+        attn_score = tf.matmul(query, key, transpose_b=True) / tf.math.sqrt(depth)
+        attn_score = tf.nn.softmax(attn_score, axis=-1)                       # sequence 기준 softmax
+
+        ret = tf.matmul(attn_score, value)
+
+        return ret
 
     # input은 query, key, value, mask 정보를 담은 dictionary
     def multihead_attention(self, input=None):
-        query, key, value, mask = input['query'], input['key'], input['value'], input['mask']           # query = key = value
+        query, key, value, mask = input['query'], input['key'], input['value'], input['mask']           # query = key = value in self-attention, not in inter-attention.
 
         query = self.W_Q(query)
         key = self.W_K(key)
@@ -74,12 +82,16 @@ class MultiHeadAttention(tf.keras.layers.Layer):
         key = self.split_heads(key)
         value = self.split_heads(value)
 
+        attn_scaled = self.scaled_dot_attention(query, key, value)
+        attn_concat = tf.reshape(attn_scaled, shape=(attn_scaled.shape[0], -1, self.d_model))
 
+        output = self.W_O(attn_concat)
 
+        return output
 
-
-
-
+    # input is scaled_dot_producted tensor (batch_size, seq_len, seq_len)
+    def padding_mask(self, x):
+        for i in range(x.shape[-1]):
 
 
 
