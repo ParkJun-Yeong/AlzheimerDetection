@@ -205,7 +205,7 @@ class Transformer:
 
         return tf.keras.Model(inputs=[inputs, enc_outputs, look_ahead_mask, padding_mask], outputs=output, name=name)
 
-    def decoder(self, vocab_size, dropout, name='decoder')
+    def decoder(self, vocab_size, dropout, name='decoder'):
         inputs = tf.keras.Input(shape=(None,), name='inputs')
         enc_outputs = tf.keras.Input(shape=(None, self.d_model), name='encoder_outputs')
 
