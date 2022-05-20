@@ -9,7 +9,7 @@ class CNN(nn.Module):
         self.embedding_dim = embedding_dim          # GloVe, Word2Vec 기준으로 범위 잡기
         self.dropout_rate = dropout_rate
 
-        self.embed = nn.Embedding(vocab_size, embedding_dim)
+        # self.embbed = nn.Embedding(vocab_size, embedding_dim)
         # self.multi_size_conv = [nn.Conv1d(in_channels=1, out_channels=1, kernel_size=(kernel_size, embedding_dim), stride=1) for kernel_size in range(1, 6)]     # first conv. layer
         # self.uni_size_conv = nn.Conv1d(in_channels=1, out_channels=1, kernel_size=(3, embedding_dim), stride=1)
         # self.cnn = nn.ModuleList([self.multi_size_conv, self.uni_size_conv, self.uni_size_conv])
@@ -53,16 +53,17 @@ class CNN(nn.Module):
         x = self.max_pooling(x, kernel=2, stride=2)
 
         return x
-    #
-    # def call(self):
-    #     result = self.forward(input)
-    #
-    #     return result
+
+    def call(self):
+        ret = self.forward()
+
+        return ret
 
 
 class BiRNN(nn.Module):
     def __init__(self, model, max_seq_len, embedding_dim=100):
         super(BiRNN, self).__init__()
+        self.model = model
         self.embedding_dim = embedding_dim
         self.hidden_size = 100                # 논문에 언급 없음
         self.hidden_units = 128
@@ -74,9 +75,17 @@ class BiRNN(nn.Module):
                                num_layers=self.hidden_units, batch_first=True, bidirectional=True)
 
     def forward(self, x):
-        output, hidden = self.bi_gru(x)
+        if self.model == "gru":
+            output, hidden = self.bi_gru(x)
+        elif self.model == "lstm":
+            output, hidden = self.bi_lstm(x)
 
         return output, hidden
+
+    def call(self):
+        ret = self.forward()
+
+        return ret
 
 
 class Attention(nn.Module):         # feed-forward attention
@@ -99,6 +108,11 @@ class Attention(nn.Module):         # feed-forward attention
         r = torch.bmm(torch.transpose(x, -1, -2), alpha)
 
         return r
+
+    def call(self):
+        ret = self.fowrad()
+
+        return ret
 
 # Test run
 if __name__ == "__main__":

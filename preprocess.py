@@ -1,48 +1,50 @@
-"""
-[Preparations]
-- Settings for compatability with python 2.x.
-- import requires.
-"""
-from __future__ import absolute_import
-from __future__ import division
-from __future__ import print_function
-from __future__ import unicode_literals
-
-import torch
-from torch.jit import script, trace
-import torch.nn as nn
-from torch import optim
-import torch.nn.functional as F
-import csv
-import random
-import re
 import os
-import unicodedata
-import codecs
-from io import open
-import itertools
-import math
-
-USE_CUDA = torch.cuda.is_available()
-device = torch.device("cuda" if USE_CUDA else "cpu")
+import torch
+from torch.utils.data import DataLoader, Dataset
+import pandas as pd
 
 
-"""
-[Load and Preprocess Data]
-- Reformat data file.
-- Load the data into structures that we can work with.
-"""
-# Print some datafile to see the original format.
-corpus_name = 'pitt_corpus_cookie_theft'
-corpus = os.path.join("data", corpus_name)
 
-def printLines(file, n=10):
-    with open(file, 'rb') as datafile:
-        lines = datafile.readlines()
-    for line in lines[:n]:
-        print(line)
+import torch.nn
 
-printLines(os.path.join(corpus.movie_lines.txt))
+class DementiaDataset(Dataset):
+    def __init__(self):
+        super(DementiaDataset, self).__init__()
+        self.base_path = os.path.join(os.getcwd(), 'dataset')
+        self.control_path = os.path.join(self.base_path, 'control')
+        self.dementia_path = os.path.join(self.base_path, 'dementia')
 
-# Create formatted data file. (query and answer)
-def loadLines(fileName)
+        self.control_files = os.listdir(self.control_path)
+        self.dementia_files = os.listdir(self.dementia_path)
+        self.dataset = self.control_files + self.dementia_files
+
+
+    def __len__(self):
+        return len(self.control_files) + len(self.dementia_files)
+
+    def __getitem__(self, idx):
+        cutline = len(self.control_files)
+
+        if idx <= cutline:
+            file_path = os.path.join(self.control_path, self.dataset[idx])
+            label = 0
+        else:
+            file_path = os.path.join(self.dementia_path, self.dataset[idx])
+            label = 1
+
+        file = pd.read_csv(file_path, delimiter='\n')
+
+        return file, label
+
+
+class Preprocess:
+    def __init__(self):
+
+        self.max_seq_len = 100          # 언급 없음
+
+        self.dementia = []
+        self.control = []
+
+    def loader(self):
+
+    def padding(self):
