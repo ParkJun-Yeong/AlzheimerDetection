@@ -89,10 +89,10 @@ class BiRNN(nn.Module):
 
 
 class Attention(nn.Module):         # feed-forward attention
-    def __init__(self, d, t):
+    def __init__(self, d=128):
         super(Attention, self).__init__()
         self.d = d             # CNN: the number of filters = 128  /  Bi LSTM: dim of the contextual word embedding = 128
-        self.T = t             # length of generated feature map   /  Bi LSTM: the number of hidden states
+        # self.T = t             # length of generated feature map   /  Bi LSTM: the number of hidden states
 
         self.tanh = nn.Tanh()
         self.softmax = nn.Softmax()
@@ -114,10 +114,36 @@ class Attention(nn.Module):         # feed-forward attention
 
         return ret
 
-# Test run
-if __name__ == "__main__":
+class Model(nn.Module):
+    def __init__(self, max_seq_length, dropout_rate, vocab_size, embedding_size):
+        super(Model, self).__init__()
 
-    vocab_size = 1751   # 우선 논문과 동일하게 설정
-    embedding_dim = 100    # 100-GloVe 기준
+        self.max_seq_length = max_seq_length
+        self.dropout_rate = dropout_rate
+        self.vocab_size = vocab_size
+        self.embedding_size = embedding_size
 
-    embed = nn.Embedding(vocab_size, embedding_dim)
+        self.cnn_attn = nn.Sequential(CNN(max_seq_len=max_seq_length, dropout_rate=dropout_rate,
+                                     vocab_size=vocab_size, embedding_dim=embedding_size),
+                                 Attention())
+
+        self.bigru_attn = nn.Sequential(BiRNN(model="gru", max_seq_len=max_seq_length, embedding_dim=embedding_size),
+                                   Attention())
+
+        self.softmax = nn.Softmax()
+
+    def forward(self, x):
+        cnn_res = self.cnn_attn(x)
+        bigru_res = self.bigru_attn(x)
+
+        concated_res = torch.concat([cnn_res, bigru_res])
+
+        res = self.softmax(concated_res)
+
+        return res
+
+    def call(self):
+        res = self.forward()
+
+        return res
+
