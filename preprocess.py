@@ -38,11 +38,12 @@ class DementiaDataset(Dataset):
 
 
 class Preprocess:
-    def __init__(self, corpus_exist=1):
-        if corpus_exist == 0:          # corpus_exist=0 : corpus 생성 필요
+    def __init__(self):
+        self.path = "./dataset/corpus.csv"
+
+        if not os.path.isfile(self.path):  # corpus.csv 존재 확인
             Preprocess.load_raw()
 
-        self.path = "./dataset/corpus.csv"
         self.corpus = pd.read_csv(self.path)
         # self.vocab = None
 
@@ -66,7 +67,7 @@ class Preprocess:
             document = pd.read_csv(file, header=None, sep='\n')
 
             for i in range(len(document)):
-                sent = list(document.iloc[i])
+                sent = document.iloc[i, 0]
                 dataframe = dataframe.append({"sentence": sent,
                                   "label": 1}, ignore_index=True)
 

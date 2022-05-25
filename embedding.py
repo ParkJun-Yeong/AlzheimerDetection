@@ -19,10 +19,7 @@ corpus_path = "./dataset/corpus.csv"
 def bert_embedding():
     embedding_dataframe = pd.DataFrame(["embedded_sentence", 'label'])
 
-    if not os.path.isfile(corpus_path):            # corpus.csv 존재 확인
-        pre = Preprocess(corpus_exist=0)
-    else:
-        pre = Preprocess(corpus_exist=1)
+    pre = Preprocess()
 
     # pre-trained model의 weight을 로드.
     model = BertModel.from_pretrained('bert-base-uncased')
