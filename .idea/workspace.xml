@@ -1,9 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="4cd0ffeb-81ee-4a86-a7bd-fcb1a202b408" name="Default Changelist" comment="">
+    <list default="true" id="4cd0ffeb-81ee-4a86-a7bd-fcb1a202b408" name="Default Changelist" comment="2022.05.25.Preprocess,Embedding 코드 작성&#10;(nltk, berttokenizer 등)">
       <change beforePath="$PROJECT_DIR$/embedding.py" beforeDir="false" afterPath="$PROJECT_DIR$/embedding.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/preprocess.py" beforeDir="false" afterPath="$PROJECT_DIR$/preprocess.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -89,7 +88,7 @@
       <workItem from="1644122279853" duration="10387000" />
       <workItem from="1644141339682" duration="10530000" />
       <workItem from="1644370832575" duration="927000" />
-      <workItem from="1652419964543" duration="100381000" />
+      <workItem from="1652419964543" duration="100553000" />
     </task>
     <task id="LOCAL-00001" summary="Initial Commit">
       <created>1644142023959</created>
@@ -126,7 +125,14 @@
       <option name="project" value="LOCAL" />
       <updated>1653307763732</updated>
     </task>
-    <option name="localTasksCounter" value="6" />
+    <task id="LOCAL-00006" summary="2022.05.25.Preprocess,Embedding 코드 작성&#10;(nltk, berttokenizer 등)">
+      <created>1653474433291</created>
+      <option name="number" value="00006" />
+      <option name="presentableId" value="LOCAL-00006" />
+      <option name="project" value="LOCAL" />
+      <updated>1653474433291</updated>
+    </task>
+    <option name="localTasksCounter" value="7" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -150,7 +156,8 @@
     <MESSAGE value="2022.05.19.&#10;CNN, BiRNN, Attention&#10;BiRNN 수정 필요" />
     <MESSAGE value="2022.05.20.&#10;Tokenization, Embedding, Training&#10;push가 뭔가 잘 안된다;;;" />
     <MESSAGE value="2022.05.23.model_완성" />
-    <option name="LAST_COMMIT_MESSAGE" value="2022.05.23.model_완성" />
+    <MESSAGE value="2022.05.25.Preprocess,Embedding 코드 작성&#10;(nltk, berttokenizer 등)" />
+    <option name="LAST_COMMIT_MESSAGE" value="2022.05.25.Preprocess,Embedding 코드 작성&#10;(nltk, berttokenizer 등)" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
