@@ -23,9 +23,9 @@ class DementiaDataset(Dataset):
         return len(self.control_files) + len(self.dementia_files)
 
     def __getitem__(self, idx):
-        cutline = len(self.control_files)
+        cut_line = len(self.control_files)
 
-        if idx <= cutline:
+        if idx <= cut_line:
             file_path = os.path.join(self.control_path, self.dataset[idx])
             label = 0
         else:
@@ -37,15 +37,16 @@ class DementiaDataset(Dataset):
         return file, label
 
 
-class Preprocess():
+class Preprocess:
     def __init__(self, corpus_exist=1):
-        if not corpus_exist:          # flag_corpus=0 : corpus 생성 필요
+        if corpus_exist == 0:          # corpus_exist=0 : corpus 생성 필요
             Preprocess.load_raw()
+
         self.path = "./dataset/corpus.csv"
         self.corpus = pd.read_csv(self.path)
         # self.vocab = None
 
-        self.corpus["sentence"] = self.corpus["sentence"].asytpe(str)
+        self.corpus["sentence"] = self.corpus["sentence"].astype("string")
 
     @staticmethod
     # Read raw .txt data and Convert to dataframe
@@ -106,21 +107,21 @@ class Preprocess():
 
         return tokenized_sent, vocab
 
-    def bert_tokenize(self):
+    # BERT Embedding 할 때 사용.
+    def bert_tokenize(self, sent):
         tokenizer = BertTokenizer.from_pretrained('bert-base-uncased')
 
-        for sent in tqdm(self.corpus["sentence"], desc="Bert Tokenizaiton"):
-            marked_text = "[CLS]" + sent + "[SEP]"
-            tokenized_text = tokenizer.tokenze(marked_text)
-            indexed_text = tokenizer.convert_tokens_to_ids(tokenized_text)
+        # for sent in tqdm(self.corpus["sentence"], desc="Bert Tokenizaiton"):
+        marked_text = "[CLS]" + sent + "[SEP]"
+        tokenized_text = tokenizer.tokenize(marked_text)
+        indexed_tokens = tokenizer.convert_tokens_to_ids(tokenized_text)
 
-            for tup in zip(tokenized_text, indexed_text):
-                print('{:<12} {:>6,}'.format(tup[0], tup[1]))
+        for tup in zip(tokenized_text, indexed_tokens):
+            print('{:<12} {:>6,}'.format(tup[0], tup[1]))
 
-            segments_id = [1] * len(tokenized_text)
+            segments_ids = [1] * len(tokenized_text)
 
-
-
+        return indexed_tokens, segments_ids
 
     def call(self):
         self.lowercase()
