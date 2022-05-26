@@ -99,10 +99,16 @@ if __name__ == "__main__":
     loss_fn = nn.CrossEntropyLoss()
     optimizer = torch.optim.Adam(model.parameters(), lr=learning_rate, weight_decay=weight_decay)
 
+    # train_feature, train_labels = next(iter(train_dataloader))
+    # print(train_feature)
+    # print(train_labels)
+
     print("========================[[Train]]========================")
+    print()
     train_loop(dataloader=train_dataloader, model=model,
                loss_fn=loss_fn, optimizer=optimizer)
 
     print("========================[[Validation]]========================")
+    print()
     train_loop(dataloader=valid_dataloader, model=model,
                loss_fn=loss_fn, optimizer=optimizer)

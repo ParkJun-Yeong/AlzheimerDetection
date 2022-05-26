@@ -76,9 +76,9 @@ class Preprocess:
 
         return tokenized_sent, vocab
 
-    @staticmethod
     # BERT Embedding 할 때 사용.
-    def bert_tokenize(self, sent):
+    @staticmethod
+    def bert_tokenize(sent, verbose=False):
         tokenizer = BertTokenizer.from_pretrained('bert-base-uncased')
 
         # for sent in tqdm(self.corpus["sentence"], desc="Bert Tokenizaiton"):
@@ -86,10 +86,11 @@ class Preprocess:
         tokenized_text = tokenizer.tokenize(marked_text)
         indexed_tokens = tokenizer.convert_tokens_to_ids(tokenized_text)
 
-        for tup in zip(tokenized_text, indexed_tokens):
-            print('{:<12} {:>6,}'.format(tup[0], tup[1]))
+        if verbose:
+            for tup in zip(tokenized_text, indexed_tokens):
+                print('{:<12} {:>6,}'.format(tup[0], tup[1]))
 
-            segments_ids = [1] * len(tokenized_text)
+        segments_ids = [1] * len(tokenized_text)
 
         return indexed_tokens, segments_ids
 

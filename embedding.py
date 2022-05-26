@@ -1,6 +1,6 @@
-import os
 import pandas as pd
 import torch
+from torch.nn.utils.rnn import pad_sequence
 from pytorch_pretrained_bert import BertTokenizer, BertModel, BertForMaskedLM
 from preprocess import Preprocess
 from tqdm import tqdm
@@ -19,7 +19,8 @@ class Embedding:
     def __init__(self):
         pass
 
-    def bert_embedding(self, max_seq_len, batch_sentences=None):
+    @staticmethod
+    def bert_embedding(batch_sentences=None):
 
         # corpus sentence 전체 임베딩 -> .csv로 저장
         if batch_sentences is None:
@@ -75,8 +76,8 @@ class Embedding:
             model = BertModel.from_pretrained('bert-base-uncased')
             model.eval()
 
-            batch_embedding = None
-            for sentence in batch_sentences:
+            batch_embedding = []
+            for sentence in tqdm(batch_sentences, desc="Tokenizing and Embedding..."):
                 indexed_tokens, segments_ids = Preprocess.bert_tokenize(sentence)
 
                 # Convert inputs to Pytorch tensors.
@@ -102,14 +103,20 @@ class Embedding:
                 #                              len(token_vecs_cat[0])))
 
                 # 문장 벡터 만들기.
-                token_vecs = encoded_layers[11][0]
+                token_vecs = encoded_layers[11][0]                  # (seq_len, 768)
                 sentence_embedding = torch.mean(token_vecs, dim=0)
 
-                if batch_embedding is None:
-                    batch_embedding = sentence_embedding
-                else:
-                    batch_embedding = torch.concat(batch_embedding, sentence_embedding, dim=2)
+                sentence_embedding = torch.unsqueeze(input=sentence_embedding, dim=0)           # (1, 768)
 
+                batch_embedding.append(token_vecs)
+
+                # if batch_embedding is None:
+                #     batch_embedding = sentence_embedding
+                # else:
+                #     batch_embedding = torch.concat((batch_embedding, sentence_embedding), dim=0)
+
+            batch_embedding = pad_sequence(batch_embedding).permute(1, 0, 2)
+            print("batch_embedding size: ", batch_embedding.size())
 
             return batch_embedding
 #
