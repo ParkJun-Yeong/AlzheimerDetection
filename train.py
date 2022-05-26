@@ -32,6 +32,8 @@ if __name__ == "__main__":
 
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
+    embedding = 'bert'                              # choose: bert, word2vec, glove, torch
+
     learning_rate = 1e-3
     batch_size = 64        # 임의 지정. 바꾸기.
     epochs = 5
@@ -44,6 +46,7 @@ if __name__ == "__main__":
 
     vocab_size = 1751
     num_classes = 2
+
 
     # Dataloader (Test, validation도 만들기)
     dataset = preprocess.DementiaDataset()

@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="4cd0ffeb-81ee-4a86-a7bd-fcb1a202b408" name="Default Changelist" comment="embedding 참고 자료 주석 추가">
+    <list default="true" id="4cd0ffeb-81ee-4a86-a7bd-fcb1a202b408" name="Default Changelist" comment="여러가지 수정">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/embedding.py" beforeDir="false" afterPath="$PROJECT_DIR$/embedding.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/preprocess.py" beforeDir="false" afterPath="$PROJECT_DIR$/preprocess.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/train.py" beforeDir="false" afterPath="$PROJECT_DIR$/train.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -184,7 +184,14 @@
       <option name="project" value="LOCAL" />
       <updated>1653474433291</updated>
     </task>
-    <option name="localTasksCounter" value="7" />
+    <task id="LOCAL-00007" summary="여러가지 수정">
+      <created>1653494410260</created>
+      <option name="number" value="00007" />
+      <option name="presentableId" value="LOCAL-00007" />
+      <option name="project" value="LOCAL" />
+      <updated>1653494410260</updated>
+    </task>
+    <option name="localTasksCounter" value="8" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -209,7 +216,8 @@
     <MESSAGE value="2022.05.20.&#10;Tokenization, Embedding, Training&#10;push가 뭔가 잘 안된다;;;" />
     <MESSAGE value="2022.05.23.model_완성" />
     <MESSAGE value="2022.05.25.Preprocess,Embedding 코드 작성&#10;(nltk, berttokenizer 등)" />
-    <option name="LAST_COMMIT_MESSAGE" value="2022.05.25.Preprocess,Embedding 코드 작성&#10;(nltk, berttokenizer 등)" />
+    <MESSAGE value="여러가지 수정" />
+    <option name="LAST_COMMIT_MESSAGE" value="여러가지 수정" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
@@ -223,7 +231,7 @@
     </breakpoint-manager>
   </component>
   <component name="com.intellij.coverage.CoverageDataManagerImpl">
-    <SUITE FILE_PATH="coverage/Chatbot$embedding.coverage" NAME="embedding Coverage Results" MODIFIED="1653494214667" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
+    <SUITE FILE_PATH="coverage/Chatbot$embedding.coverage" NAME="embedding Coverage Results" MODIFIED="1653532061834" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
     <SUITE FILE_PATH="coverage/AlzheimerDetection$preprocess.coverage" NAME="preprocess Coverage Results" MODIFIED="1649056592366" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
     <SUITE FILE_PATH="coverage/Chatbot$Unnamed.coverage" NAME="model Coverage Results" MODIFIED="1653306923273" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
   </component>

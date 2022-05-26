@@ -15,55 +15,103 @@ corpus_path = "./dataset/corpus.csv"
 # corpus = pd.read_csv(corpus_path)
 # corpus_len = len(corpus)
 
+class Embedding:
+    def __init__(self):
+        pass
 
-def bert_embedding():
-    embedding_dataframe = pd.DataFrame(["embedded_sentence", 'label'])
+    def bert_embedding(self, sentence=None):
 
-    pre = Preprocess()
+        # corpus sentence 전체 임베딩 -> .csv로 저장
+        if sentence == None:
+            columns = ["embedded", "label"]
+            embedding_dataframe = pd.DataFrame(columns=columns)
 
-    # pre-trained model의 weight을 로드.
-    model = BertModel.from_pretrained('bert-base-uncased')
+            pre = Preprocess()
 
-    # model을 evaluation mode에 두어서 feed-forward operation을 통과하게 함.
-    model.eval()
+            # pre-trained model의 weight을 로드.
+            model = BertModel.from_pretrained('bert-base-uncased')
 
-    tmp_sent_dataframe = pd.DataFrame(["embedded_sentence"])
-    for i, sent in tqdm(enumerate(pre.corpus["sentence"]), desc="Extracting Bert Embeddings..."):
-        indexed_tokens, segments_ids = pre.bert_tokenize(sent)
+            # model을 evaluation mode에 두어서 feed-forward operation을 통과하게 함.
+            model.eval()
 
-        # Convert inputs to Pytorch tensors.
-        tokens_tensor = torch.tensor([indexed_tokens])
-        segments_tensors = torch.tensor([segments_ids])
+            # tmp_sent_dataframe = pd.DataFrame(columns=[columns[0]])
+            for i, sent in tqdm(enumerate(pre.corpus["sentence"]), desc="Extracting Bert Embeddings..."):
+                indexed_tokens, segments_ids = pre.bert_tokenize(sent)
 
-        with torch.no_grad():
-            encoded_layers, _ = model(tokens_tensor, segments_tensors)
+                # Convert inputs to Pytorch tensors.
+                tokens_tensor = torch.tensor([indexed_tokens])
+                segments_tensors = torch.tensor([segments_ids])
 
-        token_embeddings = torch.stack(encoded_layers, dim=0)
-        print("token_embeddings.size(): ", token_embeddings.size())
+                with torch.no_grad():
+                    encoded_layers, _ = model(tokens_tensor, segments_tensors)
 
-        token_embeddings = torch.squeeze(token_embeddings, dim=1)
-        token_embeddings = token_embeddings.permute(1,0,2)
+                token_embeddings = torch.stack(encoded_layers, dim=0)
+                print("token_embeddings.size(): ", token_embeddings.size())
 
-        # Word Vectors (concatenate)
-        token_vecs_cat = []
-        for token in token_embeddings:
-            cat_vec = torch.cat((token[-1], token[-2], token[-3], token[-4]), dim=0)
-            token_vecs_cat.append(cat_vec)
+                token_embeddings = torch.squeeze(token_embeddings, dim=1)
+                token_embeddings = token_embeddings.permute(1,0,2)
 
-        # print("Shape is: %d x %d" % (len(token_vecs_cat),
-        #                              len(token_vecs_cat[0])))
+                # Word Vectors (concatenate)
+                token_vecs_cat = []
+                for token in token_embeddings:
+                    cat_vec = torch.cat((token[-1], token[-2], token[-3], token[-4]), dim=0)
+                    token_vecs_cat.append(cat_vec)
 
-        # 문장 벡터 만들기.
-        token_vecs = encoded_layers[11][0]
-        sentence_embedding = torch.mean(token_vecs, dim=0)
+                # print("Shape is: %d x %d" % (len(token_vecs_cat),
+                #                              len(token_vecs_cat[0])))
 
-        tmp_sent_dataframe = tmp_sent_dataframe.append(pd.Series(sentence_embedding), ignore_index=True)
+                # 문장 벡터 만들기.
+                token_vecs = encoded_layers[11][0]
+                sentence_embedding = torch.mean(token_vecs, dim=0)
 
-    embedding_dataframe["label"] = pre.corpus["label"]
-    embedding_dataframe["embedded_sentence"] = tmp_sent_dataframe["embedded_sentence"]
+                tmp_sent_dataframe = tmp_sent_dataframe.append({"embedded": [pd.Series(sentence_embedding)]}, ignore_index=True)
 
-    return embedding_dataframe
+            embedding_dataframe["label"] = pre.corpus["label"]
+            embedding_dataframe["embedded"] = tmp_sent_dataframe["embedded"]
 
-if __name__ == "__main__":
-    df = bert_embedding()
-    df.to_csv("./dataset/tmp.csv", sep=",")
+            return embedding_dataframe
+
+        else:                               # 한 문장씩 임베딩 한 후 결과 반환
+            pre = Preprocess()
+
+            model = BertModel.from_pretrained('bert-base-uncased')
+            model.eval()
+
+            indexed_tokens, segments_ids = pre.bert_tokenize(sentence)
+
+            # Convert inputs to Pytorch tensors.
+            tokens_tensor = torch.tensor([indexed_tokens])
+            segments_tensors = torch.tensor([segments_ids])
+
+            with torch.no_grad():
+                encoded_layers, _ = model(tokens_tensor, segments_tensors)
+
+            token_embeddings = torch.stack(encoded_layers, dim=0)
+            print("token_embeddings.size(): ", token_embeddings.size())
+
+            token_embeddings = torch.squeeze(token_embeddings, dim=1)
+            token_embeddings = token_embeddings.permute(1, 0, 2)
+
+            # Word Vectors (concatenate)
+            token_vecs_cat = []
+            for token in token_embeddings:
+                cat_vec = torch.cat((token[-1], token[-2], token[-3], token[-4]), dim=0)
+                token_vecs_cat.append(cat_vec)
+
+            # print("Shape is: %d x %d" % (len(token_vecs_cat),
+            #                              len(token_vecs_cat[0])))
+
+            # 문장 벡터 만들기.
+            token_vecs = encoded_layers[11][0]
+            sentence_embedding = torch.mean(token_vecs, dim=0)
+
+
+            return sentence_embedding
+#
+#
+# if __name__ == "__main__":
+#     sentence 자동 처리 (create embedded.csv)
+#     df = bert_embedding()
+#     df.to_csv("./dataset/embedded.csv", sep=",")
+#
+#     한 문장씩 처리하는 bert embedding layer 만들기
