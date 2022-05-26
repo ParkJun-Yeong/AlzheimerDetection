@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="4cd0ffeb-81ee-4a86-a7bd-fcb1a202b408" name="Default Changelist" comment="embedding.py 코드 수정.&#10;한 문장씩 처리 or 전체 말뭉치 처리 선택&#10;텐서를 Series로 변환하면 [0 0 ... 0 0] 이런식으로 저장됨. (주의)">
-      <change afterPath="$PROJECT_DIR$/dataset.py" afterDir="false" />
+    <list default="true" id="4cd0ffeb-81ee-4a86-a7bd-fcb1a202b408" name="Default Changelist" comment="1. bert_embedding batch 버전으로 수정 (O)&#10;2. preprocess, dataset 수정 (O)&#10;3. embedding='bert'에 따라 달라지는 코드 수정 (O)&#10;4. dataset 코드 corpus에 맞게 수정 (O)&#10;5. dataset에 train_test_split 메소드 추가 (O)&#10;5. bert_tokenize static 메소드로 변경 (O)&#10;6. corpus to_csv에서 라벨 이름 지정 (O)&#10;7. corpus data column -&gt; data_path column (O)">
+      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/embedding.py" beforeDir="false" afterPath="$PROJECT_DIR$/embedding.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/preprocess.py" beforeDir="false" afterPath="$PROJECT_DIR$/preprocess.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/dataset.py" beforeDir="false" afterPath="$PROJECT_DIR$/dataset.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/model.py" beforeDir="false" afterPath="$PROJECT_DIR$/model.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/train.py" beforeDir="false" afterPath="$PROJECT_DIR$/train.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -45,7 +45,7 @@
     <property name="RunOnceActivity.ShowReadmeOnStart" value="true" />
     <property name="SHARE_PROJECT_CONFIGURATION_FILES" value="true" />
     <property name="WebServerToolWindowFactoryState" value="true" />
-    <property name="last_opened_file_path" value="$PROJECT_DIR$" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$/train.py" />
     <property name="node.js.detected.package.eslint" value="true" />
     <property name="node.js.path.for.package.eslint" value="project" />
     <property name="node.js.selected.package.eslint" value="(autodetect)" />
@@ -58,7 +58,7 @@
       </console-settings>
     </option>
   </component>
-  <component name="RunManager" selected="Python.embedding">
+  <component name="RunManager" selected="Python.train">
     <configuration name="embedding" type="PythonConfigurationType" factoryName="Python">
       <module name="Chatbot" />
       <option name="INTERPRETER_OPTIONS" value="" />
@@ -73,28 +73,6 @@
       <option name="ADD_SOURCE_ROOTS" value="true" />
       <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
       <option name="SCRIPT_NAME" value="$PROJECT_DIR$/embedding.py" />
-      <option name="PARAMETERS" value="" />
-      <option name="SHOW_COMMAND_LINE" value="false" />
-      <option name="EMULATE_TERMINAL" value="false" />
-      <option name="MODULE_MODE" value="false" />
-      <option name="REDIRECT_INPUT" value="false" />
-      <option name="INPUT_FILE" value="" />
-      <method v="2" />
-    </configuration>
-    <configuration name="embedding_window" type="PythonConfigurationType" factoryName="Python">
-      <module name="Chatbot" />
-      <option name="INTERPRETER_OPTIONS" value="" />
-      <option name="PARENT_ENVS" value="true" />
-      <envs>
-        <env name="PYTHONUNBUFFERED" value="1" />
-      </envs>
-      <option name="SDK_HOME" value="C:\Users\mlpa\anaconda3\envs\mac_torch_cpu\python.exe" />
-      <option name="WORKING_DIRECTORY" value="" />
-      <option name="IS_MODULE_SDK" value="false" />
-      <option name="ADD_CONTENT_ROOTS" value="true" />
-      <option name="ADD_SOURCE_ROOTS" value="true" />
-      <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
-      <option name="SCRIPT_NAME" value="" />
       <option name="PARAMETERS" value="" />
       <option name="SHOW_COMMAND_LINE" value="false" />
       <option name="EMULATE_TERMINAL" value="false" />
@@ -125,9 +103,31 @@
       <option name="INPUT_FILE" value="" />
       <method v="2" />
     </configuration>
+    <configuration name="train" type="PythonConfigurationType" factoryName="Python">
+      <module name="Chatbot" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="C:\Users\mlpa\anaconda3\envs\mac_torch_cpu\python.exe" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
+      <option name="IS_MODULE_SDK" value="false" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/train.py" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+      <option name="REDIRECT_INPUT" value="false" />
+      <option name="INPUT_FILE" value="" />
+      <method v="2" />
+    </configuration>
     <list>
-      <item itemvalue="Python.embedding_window" />
       <item itemvalue="Python.embedding" />
+      <item itemvalue="Python.train" />
       <item itemvalue="Python.model" />
     </list>
   </component>
@@ -143,7 +143,7 @@
       <workItem from="1644141339682" duration="10530000" />
       <workItem from="1644370832575" duration="927000" />
       <workItem from="1652419964543" duration="100553000" />
-      <workItem from="1653542008486" duration="1993000" />
+      <workItem from="1653542008486" duration="4781000" />
     </task>
     <task id="LOCAL-00001" summary="Initial Commit">
       <created>1644142023959</created>
@@ -194,7 +194,14 @@
       <option name="project" value="LOCAL" />
       <updated>1653494410260</updated>
     </task>
-    <option name="localTasksCounter" value="8" />
+    <task id="LOCAL-00008" summary="1. bert_embedding batch 버전으로 수정 (O)&#10;2. preprocess, dataset 수정 (O)&#10;3. embedding='bert'에 따라 달라지는 코드 수정 (O)&#10;4. dataset 코드 corpus에 맞게 수정 (O)&#10;5. dataset에 train_test_split 메소드 추가 (O)&#10;5. bert_tokenize static 메소드로 변경 (O)&#10;6. corpus to_csv에서 라벨 이름 지정 (O)&#10;7. corpus data column -&gt; data_path column (O)">
+      <created>1653544053204</created>
+      <option name="number" value="00008" />
+      <option name="presentableId" value="LOCAL-00008" />
+      <option name="project" value="LOCAL" />
+      <updated>1653544053204</updated>
+    </task>
+    <option name="localTasksCounter" value="9" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -247,7 +254,8 @@
     <MESSAGE value="2022.05.23.model_완성" />
     <MESSAGE value="2022.05.25.Preprocess,Embedding 코드 작성&#10;(nltk, berttokenizer 등)" />
     <MESSAGE value="여러가지 수정" />
-    <option name="LAST_COMMIT_MESSAGE" value="여러가지 수정" />
+    <MESSAGE value="1. bert_embedding batch 버전으로 수정 (O)&#10;2. preprocess, dataset 수정 (O)&#10;3. embedding='bert'에 따라 달라지는 코드 수정 (O)&#10;4. dataset 코드 corpus에 맞게 수정 (O)&#10;5. dataset에 train_test_split 메소드 추가 (O)&#10;5. bert_tokenize static 메소드로 변경 (O)&#10;6. corpus to_csv에서 라벨 이름 지정 (O)&#10;7. corpus data column -&gt; data_path column (O)" />
+    <option name="LAST_COMMIT_MESSAGE" value="1. bert_embedding batch 버전으로 수정 (O)&#10;2. preprocess, dataset 수정 (O)&#10;3. embedding='bert'에 따라 달라지는 코드 수정 (O)&#10;4. dataset 코드 corpus에 맞게 수정 (O)&#10;5. dataset에 train_test_split 메소드 추가 (O)&#10;5. bert_tokenize static 메소드로 변경 (O)&#10;6. corpus to_csv에서 라벨 이름 지정 (O)&#10;7. corpus data column -&gt; data_path column (O)" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
@@ -261,7 +269,7 @@
     </breakpoint-manager>
   </component>
   <component name="com.intellij.coverage.CoverageDataManagerImpl">
-    <SUITE FILE_PATH="coverage/Chatbot$embedding.coverage" NAME="embedding Coverage Results" MODIFIED="1653532061834" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
+    <SUITE FILE_PATH="coverage/Chatbot$embedding.coverage" NAME="embedding Coverage Results" MODIFIED="1653546796388" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
     <SUITE FILE_PATH="coverage/AlzheimerDetection$preprocess.coverage" NAME="preprocess Coverage Results" MODIFIED="1649056592366" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
     <SUITE FILE_PATH="coverage/Chatbot$Unnamed.coverage" NAME="model Coverage Results" MODIFIED="1653306923273" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
   </component>

@@ -4,7 +4,7 @@ import torch.nn as nn
 
 # 1-dimensional CNN
 class CNN(nn.Module):
-    def __init__(self, max_seq_len, vocab_size=1751, embedding_dim=100):
+    def __init__(self, max_seq_len, vocab_size=None, embedding_dim=100):
         super(CNN, self).__init__()
         self.max_seq_len = max_seq_len              # sentence length
         self.embedding_dim = embedding_dim          # GloVe, Word2Vec 기준으로 범위 잡기
@@ -126,7 +126,7 @@ class Attention(nn.Module):         # feed-forward attention
 
 
 class Model(nn.Module):
-    def __init__(self, max_seq_length, dropout_rate, vocab_size, embedding_size, merge_mode=None):
+    def __init__(self, max_seq_length, dropout_rate, embedding_size, vocab_size=None, merge_mode=None):
         super(Model, self).__init__()
 
         self.max_seq_length = max_seq_length
@@ -156,20 +156,20 @@ class Model(nn.Module):
         return res
 
 
-if __name__ == "__main__":
-    merge_mode = "concat"                       # concat, mean, add  --> 더 찾아보기
-    model = Model(max_seq_length=30, dropout_rate=1e-3, vocab_size=300, merge_mode=merge_mode, embedding_size=100)
-    # tmp = torch.rand(3, 30, 100)
-    # print(tmp.size())
-    # x = model(tmp)
-
-    from torchsummary import summary
-
-    # print("print(model): ", model)
-    print("summary(model, (64, 30, 100)): ", summary(model, (30, 100), device="cpu"))
-
-    from torchviz import make_dot
-    x = torch.zeros(1, 30, 100)
-    make_dot(model(x), params=dict(list(model.named_parameters())))
+# if __name__ == "__main__":
+#     merge_mode = "concat"                       # concat, mean, add  --> 더 찾아보기
+#     model = Model(max_seq_length=30, dropout_rate=1e-3, vocab_size=300, merge_mode=merge_mode, embedding_size=100)
+#     # tmp = torch.rand(3, 30, 100)
+#     # print(tmp.size())
+#     # x = model(tmp)
+#
+#     from torchsummary import summary
+#
+#     # print("print(model): ", model)
+#     print("summary(model, (64, 30, 100)): ", summary(model, (30, 100), device="cpu"))
+#
+#     from torchviz import make_dot
+#     x = torch.zeros(1, 30, 100)
+#     make_dot(model(x), params=dict(list(model.named_parameters())))
 
 

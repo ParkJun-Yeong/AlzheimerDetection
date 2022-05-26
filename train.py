@@ -1,17 +1,25 @@
 import torch
 import torch.nn as nn
 from torch.utils.data import DataLoader
+import pandas as pd
+import os
+from datetime import datetime
+from tqdm import tqdm
+
 from model import Model
 from preprocess import Preprocess
 from dataset import DementiaDataset
+from embedding import Embedding
 
 
 def train_loop(dataloader, model, loss_fn, optimizer):
     size = len(dataloader.dataset)
+    model.train()
 
-    for batch, (X, y) in enumerate(dataloader):
+    for batch, (X, y) in tqdm(enumerate(dataloader), desc="Train..."):
         # Prediction and Loss
-        pred = model(X)
+        embedded_x = Embedding.bert_embedding(X)
+        pred = model(embedded_x)
         loss = loss_fn(pred, y)
 
         # Backpropagation
@@ -19,15 +27,38 @@ def train_loop(dataloader, model, loss_fn, optimizer):
         loss.backward()
         optimizer.step()
 
-        if batch % 100 == 0:
+        if batch % 15 == 0:
+            torch.save(model, os.path.join("./saved_model", datetime.now()))
             loss, current = loss.item(), batch * len(X)
             print(f"loss: {loss:>7f} [{current:>5d}/{size:>5d}")
 
 
-def cross_validation(dataloader, model, loss_fn):
-
-    return
-
+# def cross_validation(dataloader, total_size, model, loss_fn, optimizer, k_fold=10):
+#     train_score = pd.Series()
+#     val_score = pd.Series()
+#
+#     total_size = total_size
+#     fraction = 1/k_fold
+#     seg = int(total_size * fraction)
+#
+#     # tr:train,val:valid; r:right,l:left;  eg: trrr: right index of right side train subset
+#     # index: [trll,trlr],[vall,valr],[trrl,trrr]
+#     for i in range(k_fold):
+#         trll = 0
+#         trlr = i * seg
+#         vall = trlr
+#         valr = i * seg + seg
+#         trrl = valr
+#         trrr = total_size
+#
+#         train_left_indices = list(range(trll, trlr))
+#         train_right_indices = list
+#
+#
+#
+#
+#
+#     return
 
 if __name__ == "__main__":
 
@@ -48,25 +79,30 @@ if __name__ == "__main__":
     pre = Preprocess()
     if embedding == 'bert':
         embedding_size = 768  # 여러 차원으로 실험해보기
+        vocab_size = None
     else:
         embedding_size = 100  # 여러 차원으로 실험해보기
         vocab, vocab_size = pre.tokenize()
 
 
-    # Dataloader (Test, validation도 만들기)
-    train_dataset = DementiaDataset(is_train=True)
+    # Dataloader
+    train_dataset = DementiaDataset(train=True)
     train_dataloader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True)
-    test_dataset = DementiaDataset(is_train=False)
-    test_dataloader = DataLoader(test_dataset)
 
-    model = Model(max_seq_length, dropout_rate, vocab_size, merge_mode, embedding_size)
+    valid_dataset = DementiaDataset(valid=True)
+    valid_dataloader = DataLoader(valid_dataset, batch_size=batch_size, shuffle=True)
 
+    test_dataset = DementiaDataset(test=True)
+    test_dataloader = DataLoader(test_dataset, shuffle=True)
+
+    model = Model(max_seq_length=max_seq_length, dropout_rate=dropout_rate, vocab_size=vocab_size, merge_mode=merge_mode, embedding_size=embedding_size)
     loss_fn = nn.CrossEntropyLoss()
     optimizer = torch.optim.Adam(model.parameters(), lr=learning_rate, weight_decay=weight_decay)
 
-    train_loop(train_dataloader, model, loss_fn, optimizer)
+    print("========================[[Train]]========================")
+    train_loop(dataloader=train_dataloader, model=model,
+               loss_fn=loss_fn, optimizer=optimizer)
 
-    # 10-fold cross validation 적용
-
-    # Embedding
-
+    print("========================[[Validation]]========================")
+    train_loop(dataloader=valid_dataloader, model=model,
+               loss_fn=loss_fn, optimizer=optimizer)
