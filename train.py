@@ -16,10 +16,11 @@ def train_loop(dataloader, model, loss_fn, optimizer):
     size = len(dataloader.dataset)
     model.train()
 
-    for batch, (X, y) in tqdm(enumerate(dataloader), desc="Train..."):
+    for i, (X, y) in tqdm(enumerate(dataloader), desc="Train..."):
         # Prediction and Loss
         embedded_x = Embedding.bert_embedding(X)
         pred = model(embedded_x)
+        pred = torch.squeeze(pred, dim=-1)
         loss = loss_fn(pred, y)
 
         # Backpropagation
@@ -27,9 +28,10 @@ def train_loop(dataloader, model, loss_fn, optimizer):
         loss.backward()
         optimizer.step()
 
-        if batch % 15 == 0:
-            torch.save(model, os.path.join("./saved_model", datetime.now()))
-            loss, current = loss.item(), batch * len(X)
+        if i % 15 == 0:
+            now = datetime.now()
+            torch.save(model, os.path.join("./saved_model", now.strftime("%Y-%m-%d-%H-%M") + ".pt"))
+            loss, current = loss.item(), i * len(X)
             print(f"loss: {loss:>7f} [{current:>5d}/{size:>5d}")
 
 
@@ -95,7 +97,7 @@ if __name__ == "__main__":
     test_dataset = DementiaDataset(test=True)
     test_dataloader = DataLoader(test_dataset, shuffle=True)
 
-    model = Model(max_seq_length=max_seq_length, dropout_rate=dropout_rate, vocab_size=vocab_size, merge_mode=merge_mode, embedding_size=embedding_size)
+    model = Model(batch_size=batch_size, max_seq_length=max_seq_length, dropout_rate=dropout_rate, vocab_size=vocab_size, merge_mode=merge_mode, embedding_size=embedding_size)
     loss_fn = nn.CrossEntropyLoss()
     optimizer = torch.optim.Adam(model.parameters(), lr=learning_rate, weight_decay=weight_decay)
 

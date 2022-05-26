@@ -88,7 +88,7 @@ class Embedding:
                     encoded_layers, _ = model(tokens_tensor, segments_tensors)
 
                 token_embeddings = torch.stack(encoded_layers, dim=0)
-                print("token_embeddings.size(): ", token_embeddings.size())
+                # print("token_embeddings.size(): ", token_embeddings.size())
 
                 token_embeddings = torch.squeeze(token_embeddings, dim=1)
                 token_embeddings = token_embeddings.permute(1, 0, 2)

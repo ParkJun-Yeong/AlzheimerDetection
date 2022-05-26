@@ -126,9 +126,10 @@ class Attention(nn.Module):         # feed-forward attention
 
 
 class Model(nn.Module):
-    def __init__(self, max_seq_length, dropout_rate, embedding_size, vocab_size=None, merge_mode=None):
+    def __init__(self, batch_size, max_seq_length, dropout_rate, embedding_size, vocab_size=None, merge_mode=None):
         super(Model, self).__init__()
 
+        self.batch_size = batch_size
         self.max_seq_length = max_seq_length
         self.dropout_rate = dropout_rate
         self.vocab_size = vocab_size
@@ -143,17 +144,21 @@ class Model(nn.Module):
                                               merge_mode=merge_mode, embedding_dim=embedding_size),
                                         Attention())
 
+        self.fc = nn.Linear(in_features=128*2, out_features=1)
+
         self.softmax = nn.Softmax()
 
     def forward(self, x):
         cnn_res = self.cnn_attn(x)
         bigru_res = self.bigru_attn(x)
 
-        concated_res = torch.concat([cnn_res, bigru_res], dim=0)
+        concated_res = torch.concat([cnn_res, bigru_res], dim=1)
+        concated_res = torch.squeeze(concated_res, dim=-1)
 
-        res = self.softmax(concated_res)        # dim=1 추가하기
+        # res = self.fc(concated_res)
+        # res = self.softmax(res)        # dim=1 추가하기
 
-        return res
+        return concated_res
 
 
 # if __name__ == "__main__":
