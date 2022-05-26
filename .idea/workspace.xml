@@ -1,10 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="4cd0ffeb-81ee-4a86-a7bd-fcb1a202b408" name="Default Changelist" comment="9. Embedding 코드 수정 (token_vecs 사용, pad_sequence로 input 생성 -&gt; cnn 모델에 맞도록)">
+    <list default="true" id="4cd0ffeb-81ee-4a86-a7bd-fcb1a202b408" name="Default Changelist" comment="학습 및 saved_model로 저장 가능 확인.">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/embedding.py" beforeDir="false" afterPath="$PROJECT_DIR$/embedding.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/model.py" beforeDir="false" afterPath="$PROJECT_DIR$/model.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/train.py" beforeDir="false" afterPath="$PROJECT_DIR$/train.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -142,7 +140,7 @@
       <workItem from="1644141339682" duration="10530000" />
       <workItem from="1644370832575" duration="927000" />
       <workItem from="1652419964543" duration="100553000" />
-      <workItem from="1653542008486" duration="11535000" />
+      <workItem from="1653542008486" duration="12285000" />
     </task>
     <task id="LOCAL-00001" summary="Initial Commit">
       <created>1644142023959</created>
@@ -214,7 +212,14 @@
       <option name="project" value="LOCAL" />
       <updated>1653550103823</updated>
     </task>
-    <option name="localTasksCounter" value="11" />
+    <task id="LOCAL-00011" summary="학습 및 saved_model로 저장 가능 확인.">
+      <created>1653553881175</created>
+      <option name="number" value="00011" />
+      <option name="presentableId" value="LOCAL-00011" />
+      <option name="project" value="LOCAL" />
+      <updated>1653553881175</updated>
+    </task>
+    <option name="localTasksCounter" value="12" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -270,7 +275,8 @@
     <MESSAGE value="1. bert_embedding batch 버전으로 수정 (O)&#10;2. preprocess, dataset 수정 (O)&#10;3. embedding='bert'에 따라 달라지는 코드 수정 (O)&#10;4. dataset 코드 corpus에 맞게 수정 (O)&#10;5. dataset에 train_test_split 메소드 추가 (O)&#10;5. bert_tokenize static 메소드로 변경 (O)&#10;6. corpus to_csv에서 라벨 이름 지정 (O)&#10;7. corpus data column -&gt; data_path column (O)" />
     <MESSAGE value="1. bert_embedding batch 버전으로 수정 (O)&#10;2. preprocess, dataset 수정 (O)&#10;3. embedding='bert'에 따라 달라지는 코드 수정 (O)&#10;4. dataset 코드 corpus에 맞게 수정 (O)&#10;5. dataset에 train_test_split 메소드 추가 (O)&#10;5. bert_tokenize static 메소드로 변경 (O)&#10;6. corpus to_csv에서 라벨 이름 지정 (O)&#10;7. corpus data column -&gt; data_path column (O)&#10;8. train 코드 작성 (O)" />
     <MESSAGE value="9. Embedding 코드 수정 (token_vecs 사용, pad_sequence로 input 생성 -&gt; cnn 모델에 맞도록)" />
-    <option name="LAST_COMMIT_MESSAGE" value="9. Embedding 코드 수정 (token_vecs 사용, pad_sequence로 input 생성 -&gt; cnn 모델에 맞도록)" />
+    <MESSAGE value="학습 및 saved_model로 저장 가능 확인." />
+    <option name="LAST_COMMIT_MESSAGE" value="학습 및 saved_model로 저장 가능 확인." />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
@@ -294,6 +300,6 @@
     <SUITE FILE_PATH="coverage/Chatbot$embedding.coverage" NAME="embedding Coverage Results" MODIFIED="1653546796388" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
     <SUITE FILE_PATH="coverage/AlzheimerDetection$preprocess.coverage" NAME="preprocess Coverage Results" MODIFIED="1649056592366" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
     <SUITE FILE_PATH="coverage/Chatbot$Unnamed.coverage" NAME="model Coverage Results" MODIFIED="1653306923273" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
-    <SUITE FILE_PATH="coverage/Chatbot$train.coverage" NAME="train Coverage Results" MODIFIED="1653553558606" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
+    <SUITE FILE_PATH="coverage/Chatbot$train.coverage" NAME="train Coverage Results" MODIFIED="1653553706734" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
   </component>
 </project>

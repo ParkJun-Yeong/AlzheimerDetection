@@ -29,8 +29,9 @@ def train_loop(dataloader, model, loss_fn, optimizer):
         optimizer.step()
 
         if i % 15 == 0:
+            saved_model_dir = "./saved_model"
             now = datetime.now()
-            torch.save(model, os.path.join("./saved_model", now.strftime("%Y-%m-%d-%H-%M") + ".pt"))
+            torch.save(model, os.path.join(saved_model_dir, "saved_model" + now.strftime("%Y-%m-%d-%H-%M") + ".pt"))
             loss, current = loss.item(), i * len(X)
             print(f"loss: {loss:>7f} [{current:>5d}/{size:>5d}")
 
