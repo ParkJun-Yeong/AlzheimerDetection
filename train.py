@@ -1,6 +1,8 @@
 import torch
 import torch.nn as nn
 from torch.utils.data import DataLoader
+from torch.utils.tensorboard import SummaryWriter
+
 import pandas as pd
 import os
 from datetime import datetime
@@ -14,31 +16,69 @@ from embedding import Embedding
 device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
 
 
-def train_loop(dataloader, model, loss_fn, optimizer):
+def train_loop(dataloader, model, loss_fn, optimizer, epochs):
     size = len(dataloader.dataset)
+    writer = SummaryWriter()
     model.train()
 
-    for i, (X, y) in tqdm(enumerate(dataloader), desc="Train..."):
-        # Prediction and Loss
-        y = y.to(device)
-        embedded_x = Embedding.bert_embedding(X).to(device)
-        pred = model(embedded_x)
-        pred = torch.squeeze(pred, dim=-1)
-        loss = loss_fn(pred, y)
+    train_dataloader = dataloader[0]
+    valid_dataloader = dataloader[1]
 
-        # Backpropagation
-        optimizer.zero_grad()
-        loss.backward()
-        optimizer.step()
+    loss_history = []
+    train_loss_history = []
+    valid_loss_history = []
 
-        if i % 15 == 0:
-            saved_model_dir = "/home/juny/AlzheimerModel"
-            # saved_model_dir = "./saved_model"
-            now = datetime.now()
-            torch.save(model, os.path.join(saved_model_dir, "saved_model" + now.strftime("%Y-%m-%d-%H-%M") + ".pt"))
-            loss, current = loss.item(), i * len(X)
-            print(f"loss: {loss:>7f} [{current:>5d}/{size:>5d}")
+    for epoch in range(epochs):
+        for i, (X, y) in tqdm(enumerate(train_dataloader), desc="Train..."):
+            # Prediction and Loss
+            y = y.to(device)
+            embedded_x = Embedding.bert_embedding(X).to(device)
+            pred = model(embedded_x)
+            pred = torch.squeeze(pred, dim=-1)
+            loss = loss_fn(pred, y)
+            # loss_history.append(loss.data)
 
+            # Backpropagation
+            writer.add_scalar("Loss/train", loss, epoch)
+            optimizer.zero_grad()
+            loss.backward()
+            optimizer.step()
+
+            if i % 5 == 0:
+                saved_model_dir = "/home/juny/AlzheimerModel"
+                # saved_model_dir = "./saved_model"
+                now = datetime.now()
+                torch.save(model, os.path.join(saved_model_dir, "saved_model" + now.strftime("%Y-%m-%d-%H-%M") + ".pt"))
+                loss, current = loss.item(), i * len(X)
+                print(f"loss: {loss:>7f} [{current:>5d}/{size:>5d}")
+
+                validation_loop(valid_dataloader, model, loss_fn, epoch)
+
+    writer.flush()
+    writer.close()
+
+
+def validation_loop(dataloader, model, loss_fn, epoch):
+    writer = SummaryWriter()
+    model.eval()
+
+    # loss_history = []
+    # val_loss_history = []
+    with torch.no_grad():
+        val_loss = 0.0
+        for i, (X, y) in enumerate(dataloader):
+            y = y.to(device)
+            embedded_x = Embedding.bert_embedding(X).to(device)
+
+            pred = model(embedded_x)
+            pred = torch.squeeze(pred, dim=-1)
+
+            loss = loss_fn(pred, y)
+            writer.add_scalar("Loss/valid", loss, epoch)
+            # loss_history.append(loss)
+            # val_loss += loss.data
+
+        # val_loss_history.append(val_loss)
 
 # def cross_validation(dataloader, total_size, model, loss_fn, optimizer, k_fold=10):
 #     train_score = pd.Series()
@@ -112,11 +152,9 @@ if __name__ == "__main__":
     print("========================[[Train]]========================")
     print()
 
-    for _ in range(epochs):
-        train_loop(dataloader=train_dataloader, model=model,
-                   loss_fn=loss_fn, optimizer=optimizer)
+    train_loop(dataloader=(train_dataloader, valid_dataloader), model=model,
+               loss_fn=loss_fn, optimizer=optimizer, epochs=epochs)
 
-    print("========================[[Validation]]========================")
-    print()
-    train_loop(dataloader=valid_dataloader, model=model,
-               loss_fn=loss_fn, optimizer=optimizer)
+    # print("========================[[Validation]]========================")
+    # print()
+    # train_loop(dataloader=valid_dataloader, model=model, loss_fn=loss_fn, optimizer=optimizer)
