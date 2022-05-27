@@ -1,9 +1,11 @@
 import os
 import pandas as pd
 from tqdm import tqdm
+import nltk
 from nltk.tokenize import word_tokenize
 from pytorch_pretrained_bert import BertTokenizer
-# nltk.download('punkt')
+
+nltk.download('punkt')
 
 
 class Preprocess:

@@ -1,6 +1,7 @@
 import torch
 import torch.nn as nn
 
+device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
 
 # 1-dimensional CNN
 class CNN(nn.Module):
@@ -14,15 +15,15 @@ class CNN(nn.Module):
         # self.uni_size_conv = nn.Conv1d(in_channels=1, out_channels=1, kernel_size=(3, embedding_dim), stride=1)
         # self.cnn = nn.ModuleList([self.multi_size_conv, self.uni_size_conv, self.uni_size_conv])
 
-        self.conv1 = nn.ModuleList([nn.Conv1d(in_channels=self.embedding_dim, out_channels=128, kernel_size=kernel) for kernel in range(1, 6)])       # First CNN layers
+        self.conv1 = nn.ModuleList([nn.Conv1d(in_channels=self.embedding_dim, out_channels=128, kernel_size=kernel).to(device) for kernel in range(1, 6)])       # First CNN layers
         self.relu = nn.ReLU()
-        self.conv2 = nn.Conv1d(in_channels=128, out_channels=128, kernel_size=3)                  # 논문 '그림 상'으로는 128이 in channel이므로 reshape 안함
-        self.conv3 = nn.Conv1d(in_channels=128, out_channels=128, kernel_size=3)
+        self.conv2 = nn.Conv1d(in_channels=128, out_channels=128, kernel_size=3).to(device)                  # 논문 '그림 상'으로는 128이 in channel이므로 reshape 안함
+        self.conv3 = nn.Conv1d(in_channels=128, out_channels=128, kernel_size=3).to(device)
 
         self.max1d = None
 
     def max_pooling(self, input, kernel, stride):
-        self.max1d = nn.MaxPool1d(kernel, stride)
+        self.max1d = nn.MaxPool1d(kernel, stride).to(device)
         ret = self.max1d(input)
 
         return ret
@@ -40,7 +41,7 @@ class CNN(nn.Module):
         for cnn in self.conv1:
             feature = cnn(input)          # Embedded Input
             feature = self.relu(feature)
-            feature = self.max_pooling(feature, kernel=2, stride=2)
+            feature = self.max_pooling(feature, kernel=2, stride=2).to(device)
             x.append(feature)
 
         x = torch.cat(x, dim=2)
@@ -67,10 +68,10 @@ class BiRNN(nn.Module):
         self.merge_mode = merge_mode
 
         self.bi_gru = nn.GRU(input_size=self.embedding_dim, hidden_size=self.hidden_size,
-                             num_layers=self.max_seq_len, batch_first=True, dropout=self.dropout_rate, bidirectional=True)
+                             num_layers=self.max_seq_len, batch_first=True, dropout=self.dropout_rate, bidirectional=True).to(device)
 
         self.bi_lstm = nn.LSTM(input_size=self.embedding_dim, hidden_size=self.hidden_size,
-                               num_layers=self.max_seq_len, batch_first=True, bidirectional=True)
+                               num_layers=self.max_seq_len, batch_first=True, bidirectional=True).to(device)
 
         self.hidden = None
 
@@ -107,7 +108,7 @@ class Attention(nn.Module):         # feed-forward attention
         self.d = d             # CNN: the number of filters = 128  /  Bi LSTM: dim of the contextual word embedding = 128
         # self.T = t             # length of generated feature map   /  Bi LSTM: the number of hidden states
 
-        self.feedforward = nn.Linear(in_features=self.d, out_features=1)
+        self.feedforward = nn.Linear(in_features=self.d, out_features=1).to(device)
         self.tanh = nn.Tanh()
         self.softmax = nn.Softmax()
 
@@ -144,7 +145,7 @@ class Model(nn.Module):
                                               merge_mode=merge_mode, embedding_dim=embedding_size),
                                         Attention())
 
-        self.fc = nn.Linear(in_features=128*2, out_features=1)
+        self.fc = nn.Linear(in_features=128*2, out_features=1).to(device)
 
         self.softmax = nn.Softmax()
 

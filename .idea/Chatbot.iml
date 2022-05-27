@@ -2,7 +2,7 @@
 <module type="PYTHON_MODULE" version="4">
   <component name="NewModuleRootManager">
     <content url="file://$MODULE_DIR$" />
-    <orderEntry type="jdk" jdkName="Python 3.8 (mac_torch_cpu)" jdkType="Python SDK" />
+    <orderEntry type="jdk" jdkName="Remote Python 3.8.13 (sftp://juny@172.20.11.51:22/home/juny/miniconda3/envs/Alzheimer/bin/python3)" jdkType="Python SDK" />
     <orderEntry type="sourceFolder" forTests="false" />
   </component>
 </module>

@@ -11,6 +11,8 @@ from preprocess import Preprocess
 from dataset import DementiaDataset
 from embedding import Embedding
 
+device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
+
 
 def train_loop(dataloader, model, loss_fn, optimizer):
     size = len(dataloader.dataset)
@@ -18,7 +20,8 @@ def train_loop(dataloader, model, loss_fn, optimizer):
 
     for i, (X, y) in tqdm(enumerate(dataloader), desc="Train..."):
         # Prediction and Loss
-        embedded_x = Embedding.bert_embedding(X)
+        y = y.to(device)
+        embedded_x = Embedding.bert_embedding(X).to(device)
         pred = model(embedded_x)
         pred = torch.squeeze(pred, dim=-1)
         loss = loss_fn(pred, y)
@@ -29,7 +32,8 @@ def train_loop(dataloader, model, loss_fn, optimizer):
         optimizer.step()
 
         if i % 15 == 0:
-            saved_model_dir = "./saved_model"
+            saved_model_dir = "/home/juny/AlzheimerModel"
+            # saved_model_dir = "./saved_model"
             now = datetime.now()
             torch.save(model, os.path.join(saved_model_dir, "saved_model" + now.strftime("%Y-%m-%d-%H-%M") + ".pt"))
             loss, current = loss.item(), i * len(X)
@@ -65,14 +69,12 @@ def train_loop(dataloader, model, loss_fn, optimizer):
 
 if __name__ == "__main__":
 
-    device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-
     merge_mode = "concat"
     embedding = 'bert'  # choose: bert, word2vec, glove, torch
 
     learning_rate = 1e-3
     batch_size = 64        # 임의 지정. 바꾸기.
-    epochs = 5
+    epochs = 10
     dropout_rate = 0.3      # 논문 언급 없음.
     weight_decay = 2e-5
     max_seq_length = 30    # 논문 언급 없음.
@@ -98,7 +100,8 @@ if __name__ == "__main__":
     test_dataset = DementiaDataset(test=True)
     test_dataloader = DataLoader(test_dataset, shuffle=True)
 
-    model = Model(batch_size=batch_size, max_seq_length=max_seq_length, dropout_rate=dropout_rate, vocab_size=vocab_size, merge_mode=merge_mode, embedding_size=embedding_size)
+    model = Model(batch_size=batch_size, max_seq_length=max_seq_length, dropout_rate=dropout_rate,
+                  vocab_size=vocab_size, merge_mode=merge_mode, embedding_size=embedding_size).to(device)
     loss_fn = nn.CrossEntropyLoss()
     optimizer = torch.optim.Adam(model.parameters(), lr=learning_rate, weight_decay=weight_decay)
 
@@ -108,8 +111,10 @@ if __name__ == "__main__":
 
     print("========================[[Train]]========================")
     print()
-    train_loop(dataloader=train_dataloader, model=model,
-               loss_fn=loss_fn, optimizer=optimizer)
+
+    for _ in range(epochs):
+        train_loop(dataloader=train_dataloader, model=model,
+                   loss_fn=loss_fn, optimizer=optimizer)
 
     print("========================[[Validation]]========================")
     print()
