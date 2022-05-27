@@ -23,7 +23,6 @@ def train_loop(dataloader, model, loss_fn, optimizer, epochs):
 
     size = len(train_dataloader.dataset)
     writer = SummaryWriter()
-    model.train()
 
     # loss_history = []
     # train_loss_history = []
@@ -31,6 +30,7 @@ def train_loop(dataloader, model, loss_fn, optimizer, epochs):
 
     for epoch in range(epochs):
         for i, (X, y) in tqdm(enumerate(train_dataloader), desc="Train..."):
+            model.train()
             # Prediction and Loss
             y = y.to(device)
             embedded_x = Embedding.bert_embedding(X).to(device)
