@@ -17,16 +17,17 @@ device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
 
 
 def train_loop(dataloader, model, loss_fn, optimizer, epochs):
-    size = len(dataloader.dataset)
-    writer = SummaryWriter()
-    model.train()
 
     train_dataloader = dataloader[0]
     valid_dataloader = dataloader[1]
 
-    loss_history = []
-    train_loss_history = []
-    valid_loss_history = []
+    size = len(train_dataloader.dataset)
+    writer = SummaryWriter()
+    model.train()
+
+    # loss_history = []
+    # train_loss_history = []
+    # valid_loss_history = []
 
     for epoch in range(epochs):
         for i, (X, y) in tqdm(enumerate(train_dataloader), desc="Train..."):

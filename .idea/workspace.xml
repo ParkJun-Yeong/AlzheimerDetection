@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="4cd0ffeb-81ee-4a86-a7bd-fcb1a202b408" name="Default Changelist" comment="gpu에서 학습 가능하도록 코드 수정 (결과 나오는 것 확인),&#10;3090 서버 기준 saved_model 경로 수정.">
+    <list default="true" id="4cd0ffeb-81ee-4a86-a7bd-fcb1a202b408" name="Default Changelist" comment="Tensorboard 추가">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/train.py" beforeDir="false" afterPath="$PROJECT_DIR$/train.py" afterDir="false" />
     </list>
@@ -168,7 +168,7 @@
       <workItem from="1644141339682" duration="10530000" />
       <workItem from="1644370832575" duration="927000" />
       <workItem from="1652419964543" duration="100553000" />
-      <workItem from="1653542008486" duration="26527000" />
+      <workItem from="1653542008486" duration="26941000" />
     </task>
     <task id="LOCAL-00001" summary="Initial Commit">
       <created>1644142023959</created>
@@ -261,7 +261,14 @@
       <option name="project" value="LOCAL" />
       <updated>1653619432726</updated>
     </task>
-    <option name="localTasksCounter" value="14" />
+    <task id="LOCAL-00014" summary="Tensorboard 추가">
+      <created>1653629105361</created>
+      <option name="number" value="00014" />
+      <option name="presentableId" value="LOCAL-00014" />
+      <option name="project" value="LOCAL" />
+      <updated>1653629105361</updated>
+    </task>
+    <option name="localTasksCounter" value="15" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -319,7 +326,8 @@
     <MESSAGE value="9. Embedding 코드 수정 (token_vecs 사용, pad_sequence로 input 생성 -&gt; cnn 모델에 맞도록)" />
     <MESSAGE value="학습 및 saved_model로 저장 가능 확인." />
     <MESSAGE value="gpu에서 학습 가능하도록 코드 수정 (결과 나오는 것 확인),&#10;3090 서버 기준 saved_model 경로 수정." />
-    <option name="LAST_COMMIT_MESSAGE" value="gpu에서 학습 가능하도록 코드 수정 (결과 나오는 것 확인),&#10;3090 서버 기준 saved_model 경로 수정." />
+    <MESSAGE value="Tensorboard 추가" />
+    <option name="LAST_COMMIT_MESSAGE" value="Tensorboard 추가" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
