@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="4cd0ffeb-81ee-4a86-a7bd-fcb1a202b408" name="Default Changelist" comment="Tensorboard 추가 (서버에서 정상 작동 확인)">
+    <list default="true" id="4cd0ffeb-81ee-4a86-a7bd-fcb1a202b408" name="Default Changelist" comment="validation 오류 해결.&#10;(model.eval() 후에 다시 model.train()으로 바꾸는 코드가 반드시 실행되어야 함)">
+      <change beforePath="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_Update_at_2022-05-20_오후_3_35_[Default_Changelist]/shelved.patch" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/train.py" beforeDir="false" afterPath="$PROJECT_DIR$/train.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -168,7 +168,7 @@
       <workItem from="1644141339682" duration="10530000" />
       <workItem from="1644370832575" duration="927000" />
       <workItem from="1652419964543" duration="100553000" />
-      <workItem from="1653542008486" duration="28455000" />
+      <workItem from="1653542008486" duration="31623000" />
     </task>
     <task id="LOCAL-00001" summary="Initial Commit">
       <created>1644142023959</created>
@@ -275,7 +275,14 @@
       <option name="project" value="LOCAL" />
       <updated>1653629512375</updated>
     </task>
-    <option name="localTasksCounter" value="16" />
+    <task id="LOCAL-00016" summary="validation 오류 해결.&#10;(model.eval() 후에 다시 model.train()으로 바꾸는 코드가 반드시 실행되어야 함)">
+      <created>1653651108889</created>
+      <option name="number" value="00016" />
+      <option name="presentableId" value="LOCAL-00016" />
+      <option name="project" value="LOCAL" />
+      <updated>1653651108889</updated>
+    </task>
+    <option name="localTasksCounter" value="17" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -335,7 +342,8 @@
     <MESSAGE value="gpu에서 학습 가능하도록 코드 수정 (결과 나오는 것 확인),&#10;3090 서버 기준 saved_model 경로 수정." />
     <MESSAGE value="Tensorboard 추가" />
     <MESSAGE value="Tensorboard 추가 (서버에서 정상 작동 확인)" />
-    <option name="LAST_COMMIT_MESSAGE" value="Tensorboard 추가 (서버에서 정상 작동 확인)" />
+    <MESSAGE value="validation 오류 해결.&#10;(model.eval() 후에 다시 model.train()으로 바꾸는 코드가 반드시 실행되어야 함)" />
+    <option name="LAST_COMMIT_MESSAGE" value="validation 오류 해결.&#10;(model.eval() 후에 다시 model.train()으로 바꾸는 코드가 반드시 실행되어야 함)" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>

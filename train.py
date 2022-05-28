@@ -24,6 +24,7 @@ def train_loop(dataloader, model, loss_fn, optimizer, epochs):
     size = len(train_dataloader.dataset)
     writer = SummaryWriter()
 
+
     # loss_history = []
     # train_loss_history = []
     # valid_loss_history = []
