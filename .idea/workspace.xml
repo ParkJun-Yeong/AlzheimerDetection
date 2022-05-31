@@ -1,9 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="4cd0ffeb-81ee-4a86-a7bd-fcb1a202b408" name="Default Changelist" comment="validation 오류 해결.&#10;(model.eval() 후에 다시 model.train()으로 바꾸는 코드가 반드시 실행되어야 함)">
-      <change beforePath="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_Update_at_2022-05-20_오후_3_35_[Default_Changelist]/shelved.patch" beforeDir="false" />
+    <list default="true" id="4cd0ffeb-81ee-4a86-a7bd-fcb1a202b408" name="Default Changelist" comment="commit 오류 테스트용 커밋">
+      <change afterPath="$PROJECT_DIR$/chatbot_model.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Chatbot.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/embedding.py" beforeDir="false" afterPath="$PROJECT_DIR$/embedding.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -168,7 +170,8 @@
       <workItem from="1644141339682" duration="10530000" />
       <workItem from="1644370832575" duration="927000" />
       <workItem from="1652419964543" duration="100553000" />
-      <workItem from="1653542008486" duration="31623000" />
+      <workItem from="1653542008486" duration="42315000" />
+      <workItem from="1653962536669" duration="5601000" />
     </task>
     <task id="LOCAL-00001" summary="Initial Commit">
       <created>1644142023959</created>
@@ -282,7 +285,14 @@
       <option name="project" value="LOCAL" />
       <updated>1653651108889</updated>
     </task>
-    <option name="localTasksCounter" value="17" />
+    <task id="LOCAL-00017" summary="commit 오류 테스트용 커밋">
+      <created>1653716506092</created>
+      <option name="number" value="00017" />
+      <option name="presentableId" value="LOCAL-00017" />
+      <option name="project" value="LOCAL" />
+      <updated>1653716506092</updated>
+    </task>
+    <option name="localTasksCounter" value="18" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -343,7 +353,8 @@
     <MESSAGE value="Tensorboard 추가" />
     <MESSAGE value="Tensorboard 추가 (서버에서 정상 작동 확인)" />
     <MESSAGE value="validation 오류 해결.&#10;(model.eval() 후에 다시 model.train()으로 바꾸는 코드가 반드시 실행되어야 함)" />
-    <option name="LAST_COMMIT_MESSAGE" value="validation 오류 해결.&#10;(model.eval() 후에 다시 model.train()으로 바꾸는 코드가 반드시 실행되어야 함)" />
+    <MESSAGE value="commit 오류 테스트용 커밋" />
+    <option name="LAST_COMMIT_MESSAGE" value="commit 오류 테스트용 커밋" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
@@ -352,11 +363,6 @@
           <url>file://$USER_HOME$/anaconda3/envs/mac_torch_cpu/Lib/site-packages/tqdm/utils.py</url>
           <line>147</line>
           <option name="timeStamp" value="4" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
-          <url>file://$PROJECT_DIR$/embedding.py</url>
-          <line>120</line>
-          <option name="timeStamp" value="23" />
         </line-breakpoint>
       </breakpoints>
       <default-breakpoints>

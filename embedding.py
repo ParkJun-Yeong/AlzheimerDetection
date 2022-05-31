@@ -20,7 +20,7 @@ class Embedding:
         pass
 
     @staticmethod
-    def bert_embedding(batch_sentences=None):
+    def bert_embedding(batch_sentences=None, sent_embed=False):
 
         # corpus sentence 전체 임베딩 -> .csv로 저장
         if batch_sentences is None:
@@ -105,10 +105,12 @@ class Embedding:
                 # 문장 벡터 만들기.
                 token_vecs = encoded_layers[11][0]                  # (seq_len, 768)
                 sentence_embedding = torch.mean(token_vecs, dim=0)
-
                 sentence_embedding = torch.unsqueeze(input=sentence_embedding, dim=0)           # (1, 768)
 
-                batch_embedding.append(token_vecs)
+                if sent_embed:
+                    batch_embedding.append(sentence_embedding)
+                else:
+                    batch_embedding.append(token_vecs)
 
                 # if batch_embedding is None:
                 #     batch_embedding = sentence_embedding
