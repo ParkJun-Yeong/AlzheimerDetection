@@ -19,6 +19,11 @@ class Embedding:
     def __init__(self):
         pass
 
+    """
+    bert_embedding
+    - (batch_sentences): None(corpus 데이터 모두 임베딩 후 리턴), NotNone(들어온 sentence 배치 임베딩 후 리턴)
+    - (sent_embed): True(문장 단위 임베딩, 1x768 리턴), False(토큰 단위 임베딩, seqlen x768 리턴)
+    """
     @staticmethod
     def bert_embedding(batch_sentences=None, sent_embed=False):
 
