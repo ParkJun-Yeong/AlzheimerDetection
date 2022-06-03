@@ -56,8 +56,7 @@ class Preprocess:
         vocab_file = "chatbot.model"
         vocab = spm.SentencePieceProcessor()
         vocab.load(vocab_file)
-        line = "안녕하세요. 만나서 반갑습니다."          # Example
-
+        line = "안녕하세요 만나서 반갑습니다"          # Example
         pieces = vocab.encode_as_pieces(line)       # token = piece
         ids = vocab.encode_as_ids(line)             # piece(token)들의 단어 id 목록
 
@@ -193,46 +192,11 @@ def preprocess_sentence(sentence):
     return sentence
 
 
-def evaluate(sentence, vocab, model):
-    START_TOKEN = [2]
-    END_TOKEN = [3]
-    MAX_LENGTH = 40
-
-    sentence = preprocess_sentence(sentence)
-    input = torch.tensor([START_TOKEN + vocab.encode_as_ids(sentence) + END_TOKEN]).to(device)
-    output = torch.tensor([START_TOKEN]).to(device)
-
-    # 디코더의 예측 시작
-    model.eval()
-    for i in range(MAX_LENGTH):
-        src_mask = model.generate_square_subsequent_mask(input.shape[1]).to(device)
-        tgt_mask = model.generate_square_subsequent_mask(output.shape[1]).to(device)
-
-        src_padding_mask = gen_attention_mask(input).to(device)
-        tgt_padding_mask = gen_attention_mask(output).to(device)
-
-        predictions = model(input, output, src_mask, tgt_mask, src_padding_mask, tgt_padding_mask).transpose(0,1)
-        # 현재(마지막) 시점의 예측 단어를 받아온다.
-        predictions = predictions[:, -1:, :]
-        predicted_id = torch.LongTensor(torch.argmax(predictions.cpu(), axis=-1))
-
-
-        # 만약 마지막 시점의 예측 단어가 종료 토큰이라면 예측을 중단
-        if torch.equal(predicted_id[0][0], torch.tensor(END_TOKEN[0])):
-            break
-
-        # 마지막 시점의 예측 단어를 출력에 연결한다.
-        # 이는 for문을 통해서 디코더의 입력으로 사용될 예정이다.
-        output = torch.cat([output, predicted_id.to(device)], axis=1)
-
-    return torch.squeeze(output, axis=0).cpu().numpy()
-
-
 def train():
     MAX_LENGTH = 40
     BATCH_SIZE = 64
     lr = 1e-4
-    epoch = 50
+    epoch = 60
     vocab_size = 8000
 
 
@@ -281,6 +245,42 @@ def train():
 
     return vocab, model
 
+
+def evaluate(sentence, vocab, model):
+    START_TOKEN = [2]
+    END_TOKEN = [3]
+    MAX_LENGTH = 40
+
+    sentence = preprocess_sentence(sentence)
+    input = torch.tensor([START_TOKEN + vocab.encode_as_ids(sentence) + END_TOKEN]).to(device)
+    output = torch.tensor([START_TOKEN]).to(device)
+
+    # 디코더의 예측 시작
+    model.eval()
+    for i in range(MAX_LENGTH):
+        src_mask = model.generate_square_subsequent_mask(input.shape[1]).to(device)
+        tgt_mask = model.generate_square_subsequent_mask(output.shape[1]).to(device)
+
+        src_padding_mask = gen_attention_mask(input).to(device)
+        tgt_padding_mask = gen_attention_mask(output).to(device)
+
+        predictions = model(input, output, src_mask, tgt_mask, src_padding_mask, tgt_padding_mask).transpose(0, 1)
+        # 현재(마지막) 시점의 예측 단어를 받아온다.
+        predictions = predictions[:, -1:, :]
+        predicted_id = torch.LongTensor(torch.argmax(predictions.cpu(), axis=-1))
+
+
+        # 만약 마지막 시점의 예측 단어가 종료 토큰이라면 예측을 중단
+        if torch.equal(predicted_id[0][0], torch.tensor(END_TOKEN[0])):
+            break
+
+        # 마지막 시점의 예측 단어를 출력에 연결한다.
+        # 이는 for문을 통해서 디코더의 입력으로 사용될 예정이다.
+        output = torch.cat([output, predicted_id.to(device)], axis=1)
+
+    return torch.squeeze(output, axis=0).cpu().numpy()
+
+
 def predict(sentence, vocab, model):
     vocab_size = 8000
     prediction = evaluate(sentence, vocab, model)
@@ -288,6 +288,7 @@ def predict(sentence, vocab, model):
 
     # print('Input: {}'.format(sentence))
     print('Chatbot say: {}'.format(predicted_sentence))
+    print()
 
     return predicted_sentence
 

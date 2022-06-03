@@ -1,13 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="4cd0ffeb-81ee-4a86-a7bd-fcb1a202b408" name="Default Changelist" comment="sentence/token embedding 수정&#10;chatbot model 코드 작성">
-      <change afterPath="$PROJECT_DIR$/chatbot_demo.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/Chatbot.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/Chatbot.iml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
+    <list default="true" id="4cd0ffeb-81ee-4a86-a7bd-fcb1a202b408" name="Default Changelist" comment="chatbot_demo.py 생성">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/chatbot_model.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/embedding.py" beforeDir="false" afterPath="$PROJECT_DIR$/embedding.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/chatbot_demo.py" beforeDir="false" afterPath="$PROJECT_DIR$/chatbot_demo.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -357,7 +353,14 @@
       <option name="project" value="LOCAL" />
       <updated>1653716506092</updated>
     </task>
-    <option name="localTasksCounter" value="18" />
+    <task id="LOCAL-00018" summary="chatbot_demo.py 생성">
+      <created>1654216486518</created>
+      <option name="number" value="00018" />
+      <option name="presentableId" value="LOCAL-00018" />
+      <option name="project" value="LOCAL" />
+      <updated>1654216486519</updated>
+    </task>
+    <option name="localTasksCounter" value="19" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -419,7 +422,8 @@
     <MESSAGE value="Tensorboard 추가 (서버에서 정상 작동 확인)" />
     <MESSAGE value="validation 오류 해결.&#10;(model.eval() 후에 다시 model.train()으로 바꾸는 코드가 반드시 실행되어야 함)" />
     <MESSAGE value="commit 오류 테스트용 커밋" />
-    <option name="LAST_COMMIT_MESSAGE" value="commit 오류 테스트용 커밋" />
+    <MESSAGE value="chatbot_demo.py 생성" />
+    <option name="LAST_COMMIT_MESSAGE" value="chatbot_demo.py 생성" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
@@ -443,7 +447,7 @@
     <SUITE FILE_PATH="coverage/Chatbot$embedding.coverage" NAME="embedding Coverage Results" MODIFIED="1653546796388" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
     <SUITE FILE_PATH="coverage/AlzheimerDetection$preprocess.coverage" NAME="preprocess Coverage Results" MODIFIED="1649056592366" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
     <SUITE FILE_PATH="coverage/Chatbot$Unnamed.coverage" NAME="model Coverage Results" MODIFIED="1653306923273" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
-    <SUITE FILE_PATH="coverage/Chatbot$chatbot_demo.coverage" NAME="chatbot_demo Coverage Results" MODIFIED="1654215847520" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
+    <SUITE FILE_PATH="coverage/Chatbot$chatbot_demo.coverage" NAME="chatbot_demo Coverage Results" MODIFIED="1654222455349" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
     <SUITE FILE_PATH="coverage/Chatbot$train.coverage" NAME="train Coverage Results" MODIFIED="1653623464638" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
   </component>
 </project>
