@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="4cd0ffeb-81ee-4a86-a7bd-fcb1a202b408" name="Default Changelist" comment="chatbot_demo.py 생성">
+    <list default="true" id="4cd0ffeb-81ee-4a86-a7bd-fcb1a202b408" name="Default Changelist" comment="chatbot_demo.py 수정">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/chatbot_demo.py" beforeDir="false" afterPath="$PROJECT_DIR$/chatbot_demo.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/AlzhBERT.py" beforeDir="false" afterPath="$PROJECT_DIR$/AlzhBERT.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -233,6 +233,7 @@
       <workItem from="1652419964543" duration="100553000" />
       <workItem from="1653542008486" duration="42315000" />
       <workItem from="1653962536669" duration="5601000" />
+      <workItem from="1655712322563" duration="2892000" />
     </task>
     <task id="LOCAL-00001" summary="Initial Commit">
       <created>1644142023959</created>
@@ -360,7 +361,14 @@
       <option name="project" value="LOCAL" />
       <updated>1654216486519</updated>
     </task>
-    <option name="localTasksCounter" value="19" />
+    <task id="LOCAL-00019" summary="chatbot_demo.py 수정">
+      <created>1654226379310</created>
+      <option name="number" value="00019" />
+      <option name="presentableId" value="LOCAL-00019" />
+      <option name="project" value="LOCAL" />
+      <updated>1654226379310</updated>
+    </task>
+    <option name="localTasksCounter" value="20" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -423,7 +431,8 @@
     <MESSAGE value="validation 오류 해결.&#10;(model.eval() 후에 다시 model.train()으로 바꾸는 코드가 반드시 실행되어야 함)" />
     <MESSAGE value="commit 오류 테스트용 커밋" />
     <MESSAGE value="chatbot_demo.py 생성" />
-    <option name="LAST_COMMIT_MESSAGE" value="chatbot_demo.py 생성" />
+    <MESSAGE value="chatbot_demo.py 수정" />
+    <option name="LAST_COMMIT_MESSAGE" value="chatbot_demo.py 수정" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
