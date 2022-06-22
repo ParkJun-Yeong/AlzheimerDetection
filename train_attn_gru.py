@@ -10,7 +10,7 @@ from tqdm import tqdm
 
 from model import Model
 from preprocess import Preprocess
-from dataset import DementiaDataset
+from dataset_gru import DementiaDataset
 from embedding import Embedding
 
 device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')

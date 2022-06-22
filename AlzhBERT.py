@@ -34,7 +34,7 @@ class Decoder(nn):
 
 
 class AlzhBERT(nn):
-    def __init__(self, embedding_dim):
+    def __init__(self, embedding_dim=768):
         super(AlzhBERT, self).__init__()
         self.embedding_dim = embedding_dim
 
@@ -45,5 +45,7 @@ class AlzhBERT(nn):
         self.decoder = Decoder()
 
 
+    # x is dictionary (dialogue)
     def forward(self, x):
+
 

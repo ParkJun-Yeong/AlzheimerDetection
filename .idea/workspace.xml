@@ -1,12 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="4cd0ffeb-81ee-4a86-a7bd-fcb1a202b408" name="Default Changelist" comment="Update: add AlzhBERT">
-      <change afterPath="$PROJECT_DIR$/train_AlzhBERT.py" afterDir="false" />
+    <list default="true" id="4cd0ffeb-81ee-4a86-a7bd-fcb1a202b408" name="Default Changelist" comment="Update: preprocess.py에 xml_to_csv() 추가">
+      <change afterPath="$PROJECT_DIR$/dataset_gru.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/AlzhBERT.py" beforeDir="false" afterPath="$PROJECT_DIR$/AlzhBERT.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/dataset.py" beforeDir="false" afterPath="$PROJECT_DIR$/dataset.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/preprocess.py" beforeDir="false" afterPath="$PROJECT_DIR$/preprocess.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/train.py" beforeDir="false" afterPath="$PROJECT_DIR$/train_attn_gru.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/train_AlzhBERT.py" beforeDir="false" afterPath="$PROJECT_DIR$/train_AlzhBERT.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/train_attn_gru.py" beforeDir="false" afterPath="$PROJECT_DIR$/train_attn_gru.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -68,7 +70,7 @@
     <property name="WebServerToolWindowPanel.toolwindow.show.date" value="false" />
     <property name="WebServerToolWindowPanel.toolwindow.show.permissions" value="false" />
     <property name="WebServerToolWindowPanel.toolwindow.show.size" value="false" />
-    <property name="last_opened_file_path" value="$PROJECT_DIR$/preprocess.py" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$/train_AlzhBERT.py" />
     <property name="node.js.detected.package.eslint" value="true" />
     <property name="node.js.path.for.package.eslint" value="project" />
     <property name="node.js.selected.package.eslint" value="(autodetect)" />
@@ -81,7 +83,7 @@
       </console-settings>
     </option>
   </component>
-  <component name="RunManager" selected="Python.preprocess">
+  <component name="RunManager" selected="Python.train_AlzhBERT">
     <configuration name="chatbot_demo" type="PythonConfigurationType" factoryName="Python">
       <module name="Chatbot" />
       <option name="INTERPRETER_OPTIONS" value="" />
@@ -192,6 +194,28 @@
       <option name="INPUT_FILE" value="" />
       <method v="2" />
     </configuration>
+    <configuration name="train_AlzhBERT" type="PythonConfigurationType" factoryName="Python">
+      <module name="Chatbot" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="C:\Users\mlpa\anaconda3\envs\mac_torch_cpu\python.exe" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
+      <option name="IS_MODULE_SDK" value="false" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/train_AlzhBERT.py" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+      <option name="REDIRECT_INPUT" value="false" />
+      <option name="INPUT_FILE" value="" />
+      <method v="2" />
+    </configuration>
     <configuration name="train_server" type="PythonConfigurationType" factoryName="Python">
       <module name="Chatbot" />
       <option name="INTERPRETER_OPTIONS" value="" />
@@ -238,6 +262,7 @@
     </configuration>
     <list>
       <item itemvalue="Python.preprocess" />
+      <item itemvalue="Python.train_AlzhBERT" />
       <item itemvalue="Python.embedding" />
       <item itemvalue="Python.train" />
       <item itemvalue="Python.chatbot_demo" />
@@ -261,7 +286,7 @@
       <workItem from="1653962536669" duration="5601000" />
       <workItem from="1655712322563" duration="7006000" />
       <workItem from="1655904029180" duration="3755000" />
-      <workItem from="1655907836218" duration="6432000" />
+      <workItem from="1655907836218" duration="19361000" />
     </task>
     <task id="LOCAL-00001" summary="Initial Commit">
       <created>1644142023959</created>
@@ -403,7 +428,14 @@
       <option name="project" value="LOCAL" />
       <updated>1655717393848</updated>
     </task>
-    <option name="localTasksCounter" value="21" />
+    <task id="LOCAL-00021" summary="Update: preprocess.py에 xml_to_csv() 추가">
+      <created>1655914349646</created>
+      <option name="number" value="00021" />
+      <option name="presentableId" value="LOCAL-00021" />
+      <option name="project" value="LOCAL" />
+      <updated>1655914349646</updated>
+    </task>
+    <option name="localTasksCounter" value="22" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -468,7 +500,8 @@
     <MESSAGE value="chatbot_demo.py 생성" />
     <MESSAGE value="chatbot_demo.py 수정" />
     <MESSAGE value="Update: add AlzhBERT" />
-    <option name="LAST_COMMIT_MESSAGE" value="Update: add AlzhBERT" />
+    <MESSAGE value="Update: preprocess.py에 xml_to_csv() 추가" />
+    <option name="LAST_COMMIT_MESSAGE" value="Update: preprocess.py에 xml_to_csv() 추가" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
@@ -490,10 +523,11 @@
   </component>
   <component name="com.intellij.coverage.CoverageDataManagerImpl">
     <SUITE FILE_PATH="coverage/Chatbot$embedding.coverage" NAME="embedding Coverage Results" MODIFIED="1653546796388" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
-    <SUITE FILE_PATH="coverage/Chatbot$preprocess.coverage" NAME="preprocess Coverage Results" MODIFIED="1655913965352" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
+    <SUITE FILE_PATH="coverage/Chatbot$preprocess.coverage" NAME="preprocess Coverage Results" MODIFIED="1655926314278" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
     <SUITE FILE_PATH="coverage/AlzheimerDetection$preprocess.coverage" NAME="preprocess Coverage Results" MODIFIED="1649056592366" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
     <SUITE FILE_PATH="coverage/Chatbot$Unnamed.coverage" NAME="model Coverage Results" MODIFIED="1653306923273" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
     <SUITE FILE_PATH="coverage/Chatbot$chatbot_demo.coverage" NAME="chatbot_demo Coverage Results" MODIFIED="1654222455349" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
     <SUITE FILE_PATH="coverage/Chatbot$train.coverage" NAME="train Coverage Results" MODIFIED="1653623464638" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
+    <SUITE FILE_PATH="coverage/Chatbot$train_AlzhBERT.coverage" NAME="train_AlzhBERT Coverage Results" MODIFIED="1655927155856" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
   </component>
 </project>

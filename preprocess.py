@@ -13,10 +13,14 @@ nltk.download('punkt')
 
 class Preprocess:
     def __init__(self):
-        self.path = "./dataset/corpus.csv"
+        # self.path = "./dataset/corpus.csv"
+        self.path = "./dataset/xml/corpus.csv"
+
+        # if not os.path.isfile(self.path):  # corpus.csv 존재 확인
+        #     Preprocess.load_raw()
 
         if not os.path.isfile(self.path):  # corpus.csv 존재 확인
-            Preprocess.load_raw()
+            Preprocess.xml_to_csv()
 
         self.corpus = pd.read_csv(self.path)
         # self.vocab = None
@@ -71,7 +75,7 @@ class Preprocess:
     """
     @staticmethod
     def xml_to_csv():
-        columns = ['file', 'uid', 'who', 'group', 'sex', 'age',
+        columns = ['file_num', 'file', 'uid', 'who', 'group', 'sex', 'age',
                    'sentence',  'language', 'education', 'label']
         path = {"Dementia": "./dataset/xml/dementia",
                 "Control": "./dataset/xml/control"}
@@ -82,6 +86,7 @@ class Preprocess:
         df = pd.DataFrame(columns=columns)
 
         # Dementia: 1
+        file_num = 0
         for file in tqdm(dementia_files, desc="Extracting dementia sequence."):
             file = os.path.join(path["Dementia"], file)
 
@@ -123,13 +128,14 @@ class Preprocess:
                     who = u.attrs['who']
 
                     words = u.find_all('w')
-                    sentence = [w.contents[0] for w in words]
-                    sentence = " ".join(str(sentence))
+                    sentence = [str(w.contents[0]) for w in words]
+                    sentence = " ".join(sentence)
 
                     df = df.append({'file': file, 'uid': uid, 'who': who,
                                     'group': group, 'sex': sex, 'age': age,
                                     'sentence': sentence, 'language': lan,
-                                    'education': edu, 'label': 1}, ignore_index=True)
+                                    'education': edu, 'label': 1, 'file_num': file_num}, ignore_index=True)
+            file_num += 1
 
         # Control: 0
         for file in tqdm(control_files, desc="Extracting control sequence."):
@@ -161,13 +167,15 @@ class Preprocess:
                     who = u.attrs['who']
 
                     words = u.find_all('w')
-                    sentence = [w.contents[0] for w in words]
-                    sentence = " ".join(str(sentence))
+                    sentence = [str(w.contents[0]) for w in words]
+                    sentence = " ".join(sentence)
 
                     df = df.append({'file': file, 'uid': uid, 'who': who,
                                     'group': group, 'sex': sex, 'age': age,
                                     'sentence': sentence, 'language': lan,
-                                    'education': edu, 'label': 0}, ignore_index=True)
+                                    'education': edu, 'label': 0, 'file_num': file_num}, ignore_index=True)
+
+            file_num += 1
 
         # csv 저장
         csv_filename = "./dataset/xml/corpus.csv"
@@ -222,7 +230,7 @@ class Preprocess:
         tokenizer = BertTokenizer.from_pretrained('bert-base-uncased')
 
         # for sent in tqdm(self.corpus["sentence"], desc="Bert Tokenizaiton"):
-        marked_text = "[CLS]" + sent + "[SEP]"
+        marked_text = "[CLS]" + str(sent) + "[SEP]"
         tokenized_text = tokenizer.tokenize(marked_text)
         indexed_tokens = tokenizer.convert_tokens_to_ids(tokenized_text)
 
