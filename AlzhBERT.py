@@ -33,7 +33,6 @@ class Decoder(nn):
     def forward(self, x):
 
 
-
 class AlzhBERT(nn):
     def __init__(self, embedding_dim):
         super(AlzhBERT, self).__init__()

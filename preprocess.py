@@ -1,5 +1,8 @@
 import os
 import pandas as pd
+import xml.etree.ElementTree as elemTree
+from bs4 import BeautifulSoup as bf
+import lxml
 from tqdm import tqdm
 import nltk
 from nltk.tokenize import word_tokenize
@@ -20,8 +23,12 @@ class Preprocess:
 
         self.corpus["sentence"] = self.corpus["sentence"].astype("string")
 
+    """
+        Read raw .txt data and Convert to dataframe
+        .cha -> .cex -> .txt 변환 후 .cex -> .csv로 정리하기 위해 만든 메소드
+        data_path, sentence, label 열을 가진 .csv가 리턴됨.
+        """
     @staticmethod
-    # Read raw .txt data and Convert to dataframe
     def load_raw():
         columns = ['data_path', 'sentence', 'label']
         path = {"Dementia": "./dataset/dementia",
@@ -56,6 +63,137 @@ class Preprocess:
         csv_filename = "./dataset/corpus.csv"
         print("Save to \"", csv_filename, "\"")
         dataframe.to_csv(csv_filename, sep=',', na_rep="NaN", index_label="index")
+
+    """
+    ".cha" is raw file extension of the cookie theft corpus.
+    In "add_tag()" method, read ".cha" files and add the tag [PAR] or [INV] to utterances following *PAR or *INV.
+    Investigator는 환자의 메타데이터와 동일하게 저장함. (개입자의 메타데이터는 언어, 포지션 밖에 없기 때문)
+    """
+    @staticmethod
+    def xml_to_csv():
+        columns = ['file', 'uid', 'who', 'group', 'sex', 'age',
+                   'sentence',  'language', 'education', 'label']
+        path = {"Dementia": "./dataset/xml/dementia",
+                "Control": "./dataset/xml/control"}
+
+        dementia_files = os.listdir(path["Dementia"])
+        control_files = os.listdir(path["Control"])
+
+        df = pd.DataFrame(columns=columns)
+
+        # Dementia: 1
+        for file in tqdm(dementia_files, desc="Extracting dementia sequence."):
+            file = os.path.join(path["Dementia"], file)
+
+            with open(file, 'r', encoding='UTF8') as f:
+                tree = bf(f, 'xml')
+                part = tree.find_all('participant')[0]
+                key = ['language', 'age', 'sex', 'group', 'education']
+                is_key = [k in part.attrs for k in key]
+
+                value = []
+                for k, i in zip(key, is_key):
+                    if not i:
+                        value.append('NaN')
+                    else:
+                        value.append(part.attrs[k] if k != 'age' else int(part.attrs[k][1:3]))
+
+                lan = value[0]
+                age = value[1]
+                sex = value[2]
+                group = value[3]
+                edu = value[4]
+
+                # if 'age' in part.attrs:
+                #     age = int(part.attrs['age'][1:3])
+                # else:
+                #     age = 'NaN'
+                # sex = part.attrs['sex']
+                # group = part.attrs['group']
+                # if 'education' in part.attrs:
+                #     age = int(part.attrs['age'][1:3])
+                # else:
+                #     age = 'NaN'
+                # edu = part.attrs['education']
+
+                uttrs = tree.find_all('u')
+
+                for u in uttrs:
+                    uid = u.attrs['uID']
+                    who = u.attrs['who']
+
+                    words = u.find_all('w')
+                    sentence = [w.contents[0] for w in words]
+                    sentence = " ".join(str(sentence))
+
+                    df = df.append({'file': file, 'uid': uid, 'who': who,
+                                    'group': group, 'sex': sex, 'age': age,
+                                    'sentence': sentence, 'language': lan,
+                                    'education': edu, 'label': 1}, ignore_index=True)
+
+        # Control: 0
+        for file in tqdm(control_files, desc="Extracting control sequence."):
+            file = os.path.join(path["Control"], file)
+
+            with open(file, 'r', encoding='UTF8') as f:
+                tree = bf(f, 'xml')
+                part = tree.find_all('participant')[0]
+                key = ['language', 'age', 'sex', 'group', 'education']
+                is_key = [k in part.attrs for k in key]
+
+                value = []
+                for k, i in zip(key, is_key):
+                    if not i:
+                        value.append('NaN')
+                    else:
+                        value.append(part.attrs[k] if k != 'age' else int(part.attrs[k][1:3]))
+
+                lan = value[0]
+                age = value[1]
+                sex = value[2]
+                group = value[3]
+                edu = value[4]
+
+                uttrs = tree.find_all('u')
+
+                for u in uttrs:
+                    uid = u.attrs['uID']
+                    who = u.attrs['who']
+
+                    words = u.find_all('w')
+                    sentence = [w.contents[0] for w in words]
+                    sentence = " ".join(str(sentence))
+
+                    df = df.append({'file': file, 'uid': uid, 'who': who,
+                                    'group': group, 'sex': sex, 'age': age,
+                                    'sentence': sentence, 'language': lan,
+                                    'education': edu, 'label': 0}, ignore_index=True)
+
+        # csv 저장
+        csv_filename = "./dataset/xml/corpus.csv"
+        print("Save to \"", csv_filename, "\"")
+        df.to_csv(csv_filename, sep=',', na_rep="NaN", index_label="index")
+
+
+        # # Test code
+        # file = os.path.join(in_path, files[0])
+        # with open(file, 'r') as f:
+        #     tree = bf(f, 'xml')
+        #
+        #     utter = tree.find_all('w')
+
+
+
+        # for file in files[:2]:
+        #     file = os.path.join(in_path, file)
+        #     with open(file, 'r') as f:
+        #         tree = bf(f, 'lxml')
+        #         utter = tree.findall('w')
+            # tree = elemTree.parse(file)
+            # root = tree.getroot()
+            #
+            # utterance = tree.findall("CHAT")
+
 
     # 대문자를 소문자로 변환
     def lowercase(self):
@@ -100,4 +238,5 @@ class Preprocess:
         self.lowercase()
 
 
-# if __name__ == "__main__":
+if __name__ == "__main__":
+    Preprocess.xml_to_csv()
