@@ -26,6 +26,7 @@ class DementiaDataset(Dataset):
                              'sentence': Embedding.bert_embedding(self.dataset[i].loc[:, 'sentence'].values.tolist())} for i in range(552)]
 
 
+
         # self.dataset = self.database
         self.label = [1]*309 + [0]*243
 

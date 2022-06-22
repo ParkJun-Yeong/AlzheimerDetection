@@ -1,14 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="4cd0ffeb-81ee-4a86-a7bd-fcb1a202b408" name="Default Changelist" comment="Update: preprocess.py에 xml_to_csv() 추가">
-      <change afterPath="$PROJECT_DIR$/dataset_gru.py" afterDir="false" />
+    <list default="true" id="4cd0ffeb-81ee-4a86-a7bd-fcb1a202b408" name="Default Changelist" comment="Update: dataloader, embedding 완료">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/AlzhBERT.py" beforeDir="false" afterPath="$PROJECT_DIR$/AlzhBERT.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/dataset.py" beforeDir="false" afterPath="$PROJECT_DIR$/dataset.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/preprocess.py" beforeDir="false" afterPath="$PROJECT_DIR$/preprocess.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/train_AlzhBERT.py" beforeDir="false" afterPath="$PROJECT_DIR$/train_AlzhBERT.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/train_attn_gru.py" beforeDir="false" afterPath="$PROJECT_DIR$/train_attn_gru.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -286,7 +282,7 @@
       <workItem from="1653962536669" duration="5601000" />
       <workItem from="1655712322563" duration="7006000" />
       <workItem from="1655904029180" duration="3755000" />
-      <workItem from="1655907836218" duration="19361000" />
+      <workItem from="1655907836218" duration="23742000" />
     </task>
     <task id="LOCAL-00001" summary="Initial Commit">
       <created>1644142023959</created>
@@ -435,7 +431,14 @@
       <option name="project" value="LOCAL" />
       <updated>1655914349646</updated>
     </task>
-    <option name="localTasksCounter" value="22" />
+    <task id="LOCAL-00022" summary="Update: dataloader, embedding 완료">
+      <created>1655927421536</created>
+      <option name="number" value="00022" />
+      <option name="presentableId" value="LOCAL-00022" />
+      <option name="project" value="LOCAL" />
+      <updated>1655927421536</updated>
+    </task>
+    <option name="localTasksCounter" value="23" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -501,7 +504,8 @@
     <MESSAGE value="chatbot_demo.py 수정" />
     <MESSAGE value="Update: add AlzhBERT" />
     <MESSAGE value="Update: preprocess.py에 xml_to_csv() 추가" />
-    <option name="LAST_COMMIT_MESSAGE" value="Update: preprocess.py에 xml_to_csv() 추가" />
+    <MESSAGE value="Update: dataloader, embedding 완료" />
+    <option name="LAST_COMMIT_MESSAGE" value="Update: dataloader, embedding 완료" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
