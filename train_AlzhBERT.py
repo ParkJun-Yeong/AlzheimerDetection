@@ -11,8 +11,7 @@ from tqdm import tqdm
 from preprocess import Preprocess
 from dataset import DementiaDataset, collate_fn
 from embedding import Embedding
-
-# from AlzhBERT import AlzhBERT
+from AlzhBERT import AlzhBERT
 
 device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
 
@@ -24,7 +23,6 @@ def train_loop(dataloader, model, loss_fn, optimizer, epochs):
 
     size = len(train_dataloader.dataset)
     writer = SummaryWriter()
-
 
     # loss_history = []
     # train_loss_history = []
@@ -154,13 +152,13 @@ if __name__ == "__main__":
     # train_feature, train_labels = next(iter(train_dataloader))
     # print(train_feature)
     # print(train_labels)
-    #
-    # print("========================[[Train]]========================")
+
+    print("========================[[Train]]========================")
+    print()
+
+    train_loop(dataloader={"train": train_dataloader, "valid": valid_dataloader}, model=model,
+               loss_fn=loss_fn, optimizer=optimizer, epochs=epochs)
+
+    # print("========================[[Validation]]========================")
     # print()
-    #
-    # train_loop(dataloader={"train": train_dataloader, "valid": valid_dataloader}, model=model,
-    #            loss_fn=loss_fn, optimizer=optimizer, epochs=epochs)
-    #
-    # # print("========================[[Validation]]========================")
-    # # print()
-    # # train_loop(dataloader=valid_dataloader, model=model, loss_fn=loss_fn, optimizer=optimizer)
+    # train_loop(dataloader=valid_dataloader, model=model, loss_fn=loss_fn, optimizer=optimizer)

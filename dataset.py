@@ -3,6 +3,7 @@ import pandas as pd
 from torch.utils.data import Dataset, DataLoader
 from sklearn.model_selection import train_test_split
 from embedding import Embedding
+import pickle
 import torch
 import numpy as np
 
@@ -25,7 +26,8 @@ class DementiaDataset(Dataset):
         self.corpus_dict = [{'who': self.dataset[i].loc[:, "who"].values.tolist(),
                              'sentence': Embedding.bert_embedding(self.dataset[i].loc[:, 'sentence'].values.tolist())} for i in range(552)]
 
-
+        with open("./corpus_dict.pkl", 'wb') as f:
+            pickle.dump(self.corpus_dict, f)
 
         # self.dataset = self.database
         self.label = [1]*309 + [0]*243
