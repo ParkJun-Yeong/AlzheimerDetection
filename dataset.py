@@ -3,6 +3,7 @@ import pandas as pd
 from torch.utils.data import Dataset, DataLoader
 from sklearn.model_selection import train_test_split
 from embedding import Embedding
+import pickle
 import torch
 import numpy as np
 
@@ -22,10 +23,17 @@ class DementiaDataset(Dataset):
         # file_num이 동일한 것끼리
         self.dataset = [self.corpus.loc[self.corpus['file_num'] == i, :] for i in range(552)]
         # embedded_sent = Embedding.bert_embedding(self.dataset[i])
-        self.corpus_dict = [{'who': self.dataset[i].loc[:, "who"].values.tolist(),
-                             'sentence': Embedding.bert_embedding(self.dataset[i].loc[:, 'sentence'].values.tolist())} for i in range(552)]
 
 
+        # # 피클 파일 없을때만 실행
+        # self.corpus_dict = [{'who': self.dataset[i].loc[:, "who"].values.tolist(),
+        #                      'sentence': Embedding.bert_embedding(self.dataset[i].loc[:, 'sentence'].values.tolist())} for i in range(552)]
+        #
+        # with open("./corpus_dict.pkl", 'wb') as f:
+        #     pickle.dump(self.corpus_dict, f)
+
+        with open(os.path.join(self.base_path, "corpus_dict.pkl"), 'rb') as f:
+            self.corpus_dict = pickle.load(f)
 
         # self.dataset = self.database
         self.label = [1]*309 + [0]*243
@@ -66,8 +74,9 @@ class DementiaDataset(Dataset):
             label = self.y_test[idx]
 
         # data.update(label=label)
+        # label = torch.tensor(label)
 
-        return (data, label)
+        return data, label
 
     # train(7), valid(2), test(1)
     def split_test(self):
@@ -102,7 +111,7 @@ def collate_fn(data):
     # for i, seq in enumerate(dialogue):
     #     end = length[i]
     #     padded_seq[i,:end] = seq
-    return (dialogue, label)
+    return dialogue, label
 
 def move(self, d: dict, device) -> dict:
     for k in d:
