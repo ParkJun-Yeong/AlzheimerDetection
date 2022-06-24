@@ -13,7 +13,7 @@ from embedding import Embedding
 from AlzhBERT import AlzhBERT
 
 device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
-
+print("device: ", device)
 
 def train_loop(dataloader, model, loss_fn, optimizer, epochs):
 
@@ -29,16 +29,22 @@ def train_loop(dataloader, model, loss_fn, optimizer, epochs):
     # valid_loss_history = []
 
     for epoch in range(epochs):
-        print("======== epoch ", epoch, "==========")
+        print("======== epoch ", epoch, "==========\n")
 
         for i, (X, y) in tqdm(enumerate(train_dataloader), desc="Train..."):
             model.train()
+
+            print("<Check Data>")
+            print("X[0] who: ", X[0]["who"][:5])
+            print("X[1] who: ", X[1]["who"][:5])
+            print()
+
             # Prediction and Loss
             y = torch.tensor(y, dtype=int)
             y = y.to(device)
             # embedded_x = Embedding.bert_embedding(X["sentence"]).to(device)
 
-            enc_loss, dec_loss = model(X, y)
+            enc_loss, dec_loss, sample_num = model(X, y)
 
             # (cls_out, decoder_out, decoder_tgt)
             # pred 모드 따로 지정
@@ -47,8 +53,12 @@ def train_loop(dataloader, model, loss_fn, optimizer, epochs):
             # loss = loss_fn(pred, y)
 
             # loss_history.append(loss.data)
-            writer.add_scalar("Enc Loss/train", enc_loss, epoch)
-            writer.add_scalar("Dec Loss/train", dec_loss, epoch)
+            writer.add_scalar("Total Enc Loss/train", enc_loss, epoch)
+            writer.add_scalar("Total Dec Loss/train", dec_loss, epoch)
+            mean_enc_train = enc_loss/float(sample_num)
+            mean_dec_train = dec_loss/float(sample_num)
+            writer.add_scalar("Mean Enc Loss/train", mean_enc_train, epoch)
+            writer.add_scalar("Mean Dec Loss/train", mean_dec_train, epoch)
 
             # Backpropagation
             optimizer.zero_grad()
@@ -57,19 +67,27 @@ def train_loop(dataloader, model, loss_fn, optimizer, epochs):
             optimizer.step()
 
             if i % 5 == 0:
-                if device is "cuda":
+                if device == "cuda":
                     saved_model_dir = "/home/juny/AlzheimerModel"
                 else:
                     saved_model_dir = "./saved_model"
                 # saved_model_dir = "./saved_model"
                 now = datetime.now()
                 torch.save(model, os.path.join(saved_model_dir, "saved_model" + now.strftime("%Y-%m-%d-%H-%M") + ".pt"))
-                encloss, decloss, current = enc_loss.item(), dec_loss.item(), i * len(X)
+                encloss, decloss, current = mean_enc_train.item(), mean_dec_train.item(), i * len(X)
                 print(f"enc loss: {encloss:>7f} dec loss: {decloss:>7f} [{current:>5d}/{size:>5d}")
 
-        enc_valid_loss, dec_valid_loss = validation_loop(valid_dataloader, model, loss_fn, epoch)
-        writer.add_scalar("Enc Loss/valid", enc_valid_loss, epoch)
-        writer.add_scalar("Dec Loss/valid", dec_valid_loss, epoch)
+        enc_valid_loss, dec_valid_loss, valid_acc, sample_num = validation_loop(valid_dataloader, model, loss_fn, epoch)
+        writer.add_scalar("Total Enc Loss/valid", enc_valid_loss, epoch)
+        mean_enc_valid = enc_valid_loss/sample_num
+        writer.add_scalar("Mean Enc Loss/valid", mean_enc_valid, epoch)
+
+        writer.add_scalar("Total Dec Loss/valid", dec_valid_loss, epoch)
+        mean_dec_valid = dec_valid_loss/sample_num
+        writer.add_scalar("Mean Dec Loss/valid", mean_dec_valid, epoch)
+        writer.add_scalar("Mean Accuracy/valid", valid_acc, epoch)
+
+        print(f"Valid enc loss: {mean_enc_valid:>7f} dec loss: {mean_dec_valid:>7f} acc: {valid_acc:>7f} [{current:>5d}/{size:>5d}")
 
     writer.flush()
     writer.close()
@@ -90,7 +108,7 @@ def validation_loop(dataloader, model, loss_fn, epoch):
             y = y.to(device)
             # embedded_x = Embedding.bert_embedding(X).to(device)
 
-            enc_loss, dec_loss = model(X, y)
+            enc_loss, dec_loss, acc, sample_num = model(X, y, valid=True)
             # pred = torch.squeeze(pred, dim=-1)
 
             enc_loss_sum += enc_loss
@@ -101,7 +119,7 @@ def validation_loop(dataloader, model, loss_fn, epoch):
             # val_loss += loss.data
 
         # val_loss_history.append(val_loss)
-    return enc_loss_sum, dec_loss_sum
+    return enc_loss_sum, dec_loss_sum, acc, float(sample_num)
 
 # def cross_validation(dataloader, total_size, model, loss_fn, optimizer, k_fold=10):
 #     train_score = pd.Series()
@@ -136,8 +154,8 @@ if __name__ == "__main__":
     embedding = 'bert'  # choose: bert, word2vec, glove, torch
 
     learning_rate = 1e-3
-    batch_size = 32        # 임의 지정. 바꾸기.
-    epochs = 10
+    batch_size = 64        # 임의 지정. 바꾸기.
+    epochs = 70
     dropout_rate = 0.1      # 논문 언급 없음.
     weight_decay = 2e-5
     max_seq_length = 30    # 논문 언급 없음.
@@ -155,19 +173,19 @@ if __name__ == "__main__":
 
     # Dataloader
     train_dataset = DementiaDataset(train=True)
-    train_dataloader = DataLoader(train_dataset, batch_size=batch_size, collate_fn=collate_fn)
+    train_dataloader = DataLoader(train_dataset, batch_size=batch_size, shuffle=False, collate_fn=collate_fn)
 
-    for i, (X, label) in enumerate(train_dataloader):
-        print(i, ':', X, label)
+    # for i, (X, label) in enumerate(train_dataloader):
+    #     print(i, ':', X, label)
 
     valid_dataset = DementiaDataset(valid=True)
-    valid_dataloader = DataLoader(valid_dataset, batch_size=batch_size, shuffle=True, collate_fn=collate_fn)
+    valid_dataloader = DataLoader(valid_dataset, batch_size=batch_size, shuffle=False, collate_fn=collate_fn)
 
-    test_dataset = DementiaDataset(test=True)
-    test_dataloader = DataLoader(test_dataset, shuffle=True, collate_fn=collate_fn)
+    # test_dataset = DementiaDataset(test=True)
+    # test_dataloader = DataLoader(test_dataset, shuffle=False, collate_fn=collate_fn)
     #
     model = AlzhBERT(pred=False).to(device)
-    loss_fn = nn.CrossEntropyLoss()
+    loss_fn = nn.MSELoss()
     optimizer = torch.optim.Adam(model.parameters(), lr=learning_rate, weight_decay=weight_decay)
     # optimizer2 = torch.optim.Adam(model.parameters(), lr=learning_rate, weight_decay=weight_decay)
 
@@ -176,7 +194,7 @@ if __name__ == "__main__":
     # print(train_feature)
     # print(train_labels)
 
-    print("========================[[Train]]========================")
+    print("========================[[Train]]========================\n")
     print()
 
     train_loop(dataloader={"train": train_dataloader, "valid": valid_dataloader}, model=model,

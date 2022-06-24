@@ -110,11 +110,14 @@ class AlzhBERT(nn.Module):
         return loss
 
     # x is dictionary (dialogue)
-    def forward(self, batch, y_batch):
+    def forward(self, batch, y_batch, valid=False):
 
         if self.pred == False:
             loss = {'enc': 0, 'dec': 0}
+        if valid:
+            accuracy = 0.0
 
+        sample_num = 0
         for dialogue, cls_label in zip(batch, y_batch):
             inv_uttr = []
             idxs = []
@@ -164,8 +167,19 @@ class AlzhBERT(nn.Module):
                 cls_out = cls_out.unsqueeze(0)
                 loss['enc'] += self.calculate_loss(cls_out, cls_label)
                 loss['dec'] += self.calculate_loss(decoder_out, decoder_tgt)
+                sample_num += 1
 
-        return loss['enc'], loss['dec']
+                cls_pred = 1 if cls_out >= 0.5 else 0
+
+                if valid:
+                    if cls_pred == cls_label:
+                        accuracy += 1
+
+        if valid:
+            accuracy = accuracy/float(sample_num)
+            return loss['enc'], loss['dec'], accuracy, sample_num
+        else:
+            return loss['enc'], loss['dec'], sample_num
 
 
 

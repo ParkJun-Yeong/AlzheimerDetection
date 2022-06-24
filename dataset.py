@@ -38,7 +38,9 @@ class DementiaDataset(Dataset):
         # self.dataset = self.database
         self.label = [1]*309 + [0]*243
 
-        self.x_train, self.x_valid, self.x_test, self.y_train, self.y_valid, self.y_test = self.split_test()
+        # self.x_train, self.x_valid, self.x_test, self.y_train, self.y_valid, self.y_test = self.split_test()
+        self.x_train, self.x_valid, self.y_train, self.y_valid = self.split_test()
+
 
         # self.control_path = os.path.join(self.base_path, 'control')
         # self.dementia_path = os.path.join(self.base_path, 'dementia')
@@ -50,8 +52,8 @@ class DementiaDataset(Dataset):
             return len(self.x_train)
         elif self.valid:
             return len(self.x_valid)
-        elif self.test:
-            return len(self.x_test)
+        # elif self.test:
+        #     return len(self.x_test)
 
     def __getitem__(self, idx):
         # cut_line = len(self.control_files)
@@ -69,9 +71,9 @@ class DementiaDataset(Dataset):
         elif self.valid:
             data = self.x_valid[idx]
             label = self.y_valid[idx]
-        elif self.test:
-            data = self.x_test[idx]
-            label = self.y_test[idx]
+        # elif self.test:
+        #     data = self.x_test[idx]
+        #     label = self.y_test[idx]
 
         # data.update(label=label)
         # label = torch.tensor(label)
@@ -82,13 +84,17 @@ class DementiaDataset(Dataset):
     def split_test(self):
         # num_dataset = len(self.dataset)
 
-        x_train, x_test, y_train, y_test = train_test_split(self.corpus_dict, self.label, test_size=0.1,
+        x_train, x_valid, y_train, y_valid = train_test_split(self.corpus_dict, self.label, test_size=0.1,
                                                             shuffle=True, stratify=self.label, random_state=1024)
-        x_train, x_valid, y_train, y_valid = train_test_split(x_train, y_train, test_size=0.2,
-                                                              shuffle=True, stratify=y_train, random_state=1024)
 
-        return x_train, x_valid, x_test, y_train, y_valid, y_test
+        # x_train, x_test, y_train, y_test = train_test_split(self.corpus_dict, self.label, test_size=0.1,
+        #                                                     shuffle=True, stratify=self.label, random_state=1024)
+        # x_train, x_valid, y_train, y_valid = train_test_split(x_train, y_train, test_size=0.2,
+        #                                                       shuffle=True, stratify=y_train, random_state=1024)
 
+        # return x_train, x_valid, x_test, y_train, y_valid, y_test
+
+        return x_train, x_valid, y_train, y_valid
 
 def collate_fn(data):
     """
