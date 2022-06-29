@@ -1,13 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="4cd0ffeb-81ee-4a86-a7bd-fcb1a202b408" name="Default Changelist" comment="Update: train 가능 확인 (loss 수정)">
-      <change beforePath="$PROJECT_DIR$/.idea/Chatbot.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/Chatbot.iml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
+    <list default="true" id="4cd0ffeb-81ee-4a86-a7bd-fcb1a202b408" name="Default Changelist" comment="Update: KSCI논문 제출 모델">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/AlzhBERT.py" beforeDir="false" afterPath="$PROJECT_DIR$/AlzhBERT.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/dataset.py" beforeDir="false" afterPath="$PROJECT_DIR$/dataset.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/train_AlzhBERT.py" beforeDir="false" afterPath="$PROJECT_DIR$/train_AlzhBERT.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/train_attn_gru.py" beforeDir="false" afterPath="$PROJECT_DIR$/train_attn_gru.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -291,7 +288,8 @@
       <workItem from="1655712322563" duration="7006000" />
       <workItem from="1655904029180" duration="3755000" />
       <workItem from="1655907836218" duration="28067000" />
-      <workItem from="1655966349247" duration="22987000" />
+      <workItem from="1655966349247" duration="23572000" />
+      <workItem from="1656150230994" duration="2194000" />
     </task>
     <task id="LOCAL-00001" summary="Initial Commit">
       <created>1644142023959</created>
@@ -461,7 +459,14 @@
       <option name="project" value="LOCAL" />
       <updated>1655973003450</updated>
     </task>
-    <option name="localTasksCounter" value="25" />
+    <task id="LOCAL-00025" summary="Update: KSCI논문 제출 모델">
+      <created>1656069984164</created>
+      <option name="number" value="00025" />
+      <option name="presentableId" value="LOCAL-00025" />
+      <option name="project" value="LOCAL" />
+      <updated>1656069984164</updated>
+    </task>
+    <option name="localTasksCounter" value="26" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -535,7 +540,8 @@
     <MESSAGE value="Update: dataloader, embedding 완료" />
     <MESSAGE value="Update: AlzhBERT 구현중" />
     <MESSAGE value="Update: train 가능 확인 (loss 수정)" />
-    <option name="LAST_COMMIT_MESSAGE" value="Update: train 가능 확인 (loss 수정)" />
+    <MESSAGE value="Update: KSCI논문 제출 모델" />
+    <option name="LAST_COMMIT_MESSAGE" value="Update: KSCI논문 제출 모델" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
@@ -544,11 +550,6 @@
           <url>file://$USER_HOME$/anaconda3/envs/mac_torch_cpu/Lib/site-packages/tqdm/utils.py</url>
           <line>147</line>
           <option name="timeStamp" value="4" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
-          <url>file://$PROJECT_DIR$/dataset.py</url>
-          <line>18</line>
-          <option name="timeStamp" value="18" />
         </line-breakpoint>
       </breakpoints>
       <default-breakpoints>

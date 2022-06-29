@@ -73,7 +73,7 @@ def train_loop(dataloader, model, loss_fn, optimizer, epochs):
                     saved_model_dir = "./saved_model"
                 # saved_model_dir = "./saved_model"
                 now = datetime.now()
-                torch.save(model, os.path.join(saved_model_dir, "saved_model" + now.strftime("%Y-%m-%d-%H-%M") + ".pt"))
+                torch.save(model.state_dict(), os.path.join(saved_model_dir, "saved_model" + now.strftime("%Y-%m-%d-%H-%M") + ".pt"))
                 encloss, decloss, current = mean_enc_train.item(), mean_dec_train.item(), i * len(X)
                 print(f"enc loss: {encloss:>7f} dec loss: {decloss:>7f} [{current:>5d}/{size:>5d}")
 
