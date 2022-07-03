@@ -11,13 +11,21 @@ import numpy as np
 from tqdm import tqdm
 device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
 
+pd.set_option('mode.chained_assignment', None)  # SettingWithCopyWarning 경고 무시
+
 """
 Preprocess part
 """
 class Preprocess:
     def __init__(self):
-        urllib.request.urlretrieve("https://raw.githubusercontent.com/songys/Chatbot_data/master/ChatbotData.csv", filename="ChatBotData.csv")
-        self.train_data = pd.read_csv('ChatBotData.csv')
+        # urllib.request.urlretrieve("https://raw.githubusercontent.com/songys/Chatbot_data/master/ChatbotData.csv", filename="ChatBotData.csv")
+        # self.train_data = pd.read_csv('ChatBotData.csv')
+        self.train_data = pd.read_csv("KETI_대화데이터_응급상황.txt", sep='\t', names=["index", "Q"])
+        self.train_data['A'] = self.train_data['Q'].iloc[1:]
+        for i in range(len(self.train_data)-1):
+            self.train_data['A'].iloc[i] = self.train_data['A'].iloc[i+1]
+        self.train_data = self.train_data.iloc[:-1]
+        self.train_data.to_csv("./KETI_대화데이터_응급상황_QA.csv", sep=',', index=False)
 
     def remove_punctuation(self):
         print("Train data samples: \n", self.train_data.head())
@@ -196,7 +204,7 @@ def train():
     MAX_LENGTH = 40
     BATCH_SIZE = 64
     lr = 1e-4
-    epoch = 60
+    epoch = 2
     vocab_size = 8000
 
 
@@ -294,15 +302,22 @@ def predict(sentence, vocab, model):
 
 if __name__ == '__main__':
     vocab, model = train()
+    data = pd.read_csv("KETI_대화데이터_응급상황_QA.csvㅇㅇㄹㅇ")
 
+    is_init = True
     # 입력 받기
     while True:
+        if is_init:
+            idx = np.random.randint(0, len(data)-1, size=1)
+            print("Chatbot: ", data['Q'].iloc[idx])
         query = input("You say: ")
 
         if query == "exit":
             break
 
         result = predict(query, vocab, model)
+
+        print("Chatbot: ", result)
 
 
 
