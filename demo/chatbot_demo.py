@@ -204,7 +204,7 @@ def train():
     MAX_LENGTH = 40
     BATCH_SIZE = 64
     lr = 1e-4
-    epoch = 2
+    epoch =100
     vocab_size = 8000
 
 
@@ -295,21 +295,24 @@ def predict(sentence, vocab, model):
     predicted_sentence = vocab.Decode(list(map(int, [i for i in prediction if i < vocab_size + 7])))
 
     # print('Input: {}'.format(sentence))
-    print('Chatbot say: {}'.format(predicted_sentence))
+    print('Chatbot: {}'.format(predicted_sentence))
     print()
 
     return predicted_sentence
 
 if __name__ == '__main__':
     vocab, model = train()
-    data = pd.read_csv("KETI_대화데이터_응급상황_QA.csvㅇㅇㄹㅇ")
+    data = pd.read_csv("KETI_대화데이터_응급상황_QA.csv")
+    data = data[data['Q'].str.contains('\?')]['Q']
+
 
     is_init = True
     # 입력 받기
     while True:
         if is_init:
             idx = np.random.randint(0, len(data)-1, size=1)
-            print("Chatbot: ", data['Q'].iloc[idx])
+            print("Chatbot: ", data.iloc[idx])
+            is_init = False
         query = input("You say: ")
 
         if query == "exit":
@@ -317,7 +320,8 @@ if __name__ == '__main__':
 
         result = predict(query, vocab, model)
 
-        print("Chatbot: ", result)
+        # print("Chatbot: ", result)
+        # print(result)
 
 
 

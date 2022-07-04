@@ -1,128 +1,107 @@
 import os
 import pandas as pd
-from torch.utils.data import Dataset, DataLoader
+from torch.utils.data import Dataset
 from sklearn.model_selection import train_test_split
-from embedding import Embedding
+# from embedding import Embedding
 import pickle
 import torch
 import numpy as np
+from dataclasses import dataclass   # 구조체
+
+"""
+** DataStruct: 한 파일에 담긴 대화 데이터, 여러 Section으로 구성
+** Section: INV 발화 하나와 여러 PAR 발화의 구성
+
+1. Section 개수는 파일마다 유동적이다.
+2. 한 Section에는 하나의 INV와 여러 PAR이 들어있다.
+3. DataStruct 내에서는 Section들의 순서를 고려한다.
+4. 각 DataStruct는 독립적이다. (다른 파일이므로)
+"""
+
+
+@dataclass
+class DataStruct:
+    def __init__(self):
+        self.sections = []
+
+
+@dataclass
+class Section:
+    def __init__(self):
+        self.inv = None
+        self.par = []
+        self.next_uttr = None
 
 
 class DementiaDataset(Dataset):
-    def __init__(self, train=False, valid=False, test=False):
+    def __init__(self, is_tr=False, is_ts=False):
         super(DementiaDataset, self).__init__()
 
-        self.train = train
-        self.valid = valid
-        self.test = test
+        self.is_tr = is_tr          # is train
+        self.is_ts = is_ts          # is test
 
-        self.base_path = './dataset/xml'
+        self.base_path = './dataset'
         self.corpus = pd.read_csv(os.path.join(self.base_path, "corpus.csv"))
-        # self.transform = transforms.Compose([transforms.ToTensor()])
 
-        # file_num이 동일한 것끼리
-        self.dataset = [self.corpus.loc[self.corpus['file_num'] == i, :] for i in range(552)]
-        # embedded_sent = Embedding.bert_embedding(self.dataset[i])
+        self.dataset = []
+        self.get_dataset()
 
+        self.label = [1] * 309 + [0] * 243
 
-        # # 피클 파일 없을때만 실행
-        # self.corpus_dict = [{'who': self.dataset[i].loc[:, "who"].values.tolist(),
-        #                      'sentence': Embedding.bert_embedding(self.dataset[i].loc[:, 'sentence'].values.tolist())} for i in range(552)]
-        #
-        # with open("./corpus_dict.pkl", 'wb') as f:
-        #     pickle.dump(self.corpus_dict, f)
-
-        with open(os.path.join(self.base_path, "corpus_dict.pkl"), 'rb') as f:
-            self.corpus_dict = pickle.load(f)
-
-        # self.dataset = self.database
-        self.label = [1]*309 + [0]*243
-
-        # self.x_train, self.x_valid, self.x_test, self.y_train, self.y_valid, self.y_test = self.split_test()
-        self.x_train, self.x_valid, self.y_train, self.y_valid = self.split_test()
-
-
-        # self.control_path = os.path.join(self.base_path, 'control')
-        # self.dementia_path = os.path.join(self.base_path, 'dementia')
-        # self.control_files = os.listdir(self.control_path)
-        # self.dementia_files = os.listdir(self.dementia_path)
+        self.x_train, self.x_test, self.y_train, self.y_test = self.split_dataset()
+        print()
 
     def __len__(self):
-        if self.train:
+        if self.is_tr:
             return len(self.x_train)
-        elif self.valid:
-            return len(self.x_valid)
-        # elif self.test:
-        #     return len(self.x_test)
+        elif self.is_ts:
+            return len(self.x_test)
 
+    # 반환 단위: DataStruct (containing multiple Sections)
     def __getitem__(self, idx):
-        # cut_line = len(self.control_files)
-        #
-        # if idx <= cut_line:
-        #     file_path = os.path.join(self.control_path, self.dataset[idx])
-        #     label = 0
-        # else:
-        #     file_path = os.path.join(self.dementia_path, self.dataset[idx])
-        #     label = 1
+        if self.is_tr:
+            return self.x_train[idx], self.y_train[idx]
+        elif self.is_ts:
+            return self.x_test[idx], self.y_test[idx]
 
-        if self.train:
-            data = self.x_train[idx]
-            label = self.y_train[idx]
-        elif self.valid:
-            data = self.x_valid[idx]
-            label = self.y_valid[idx]
-        # elif self.test:
-        #     data = self.x_test[idx]
-        #     label = self.y_test[idx]
+    """
+    corpus를 동일 파일로 구분 & 각 파일을 여러 section으로 나눔
+    데이터를 구조체로 정리해 구성하는 메소드
+    """
+    def get_dataset(self):
+        for i in range(552):
+            struct = DataStruct()
 
-        # data.update(label=label)
-        # label = torch.tensor(label)
+            file = self.corpus.loc[self.corpus['file_num'] == i, :]  # 동일 파일 행만 추출
 
-        return data, label
+            for j in range(len(file)):
+                uttr = file.iloc[j]['sentence']
+                if file.iloc[j]['who'] == 'INV':
+                    try:
+                        sec.next_uttr = uttr
+                        struct.sections.append(sec)
+                        # sec.par = []
+                    except UnboundLocalError:
+                        print("no section")
+                    sec = Section()  # 새로운 세션 생성
+                    sec.inv = uttr
 
-    # train(7), valid(2), test(1)
-    def split_test(self):
-        # num_dataset = len(self.dataset)
+                if file.iloc[j]['who'] == 'PAR':
+                    sec.par.append(uttr)
+            self.dataset.append(struct)
 
-        x_train, x_valid, y_train, y_valid = train_test_split(self.corpus_dict, self.label, test_size=0.1,
-                                                            shuffle=True, stratify=self.label, random_state=1024)
 
-        # x_train, x_test, y_train, y_test = train_test_split(self.corpus_dict, self.label, test_size=0.1,
-        #                                                     shuffle=True, stratify=self.label, random_state=1024)
-        # x_train, x_valid, y_train, y_valid = train_test_split(x_train, y_train, test_size=0.2,
-        #                                                       shuffle=True, stratify=y_train, random_state=1024)
 
-        # return x_train, x_valid, x_test, y_train, y_valid, y_test
-
-        return x_train, x_valid, y_train, y_valid
+    def split_dataset(self):
+        x_train, x_test, y_train, y_test = train_test_split(self.dataset, self.label, test_size=0.1, stratify=self.label
+                                                            , shuffle=True, random_state=1024)
+        return x_train, x_test, y_train, y_test
 
 def collate_fn(data):
-    """
-    We should build a custom collate_fn rather than using default collate_fn,
-    as the size of every sentence is different and merging sequences (including padding)
-    is not supported in default.
-    Args:
-        data: list of tuple (training sequence, label)
-    Return:
-        padded_seq - Padded Sequence, tensor of shape (batch_size, padded_length)
-        length - Original length of each sequence(without padding), tensor of shape(batch_size)
-        label - tensor of shape (batch_size)
-    """
+    return data
 
-    #sorting is important for usage pack padded sequence (used in model). It should be in decreasing order.
-    # data.sort(key=lambda x: len(x[0]), reverse=True)
-    dialogue, label = zip(*data)
-    # length = [len(seq) for seq in dialogue]
-    # padded_seq = torch.zeros(len(dialogue), max(length)).long()
-    # for i, seq in enumerate(dialogue):
-    #     end = length[i]
-    #     padded_seq[i,:end] = seq
-    return dialogue, label
-
-def move(self, d: dict, device) -> dict:
-    for k in d:
-        if isinstance(d[k], dict):
-            d[k] = self.move(d[k])
-        # elif isinstance(d[k], (Tensor)):
-        #     d[k] = d[k].to(device=device, non_blocking=True)
-    return d
+from torch.utils.data import DataLoader
+if __name__ == "__main__":
+    data = DementiaDataset(is_tr=True)
+    dataloader = DataLoader(data, shuffle=True, batch_size=3, collate_fn=collate_fn)
+    print()
