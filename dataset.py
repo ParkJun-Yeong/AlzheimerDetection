@@ -2,7 +2,9 @@ import os
 import pandas as pd
 from torch.utils.data import Dataset
 from sklearn.model_selection import train_test_split
+from tqdm import trange
 # from embedding import Embedding
+from preprocess import Preprocess
 import pickle
 import torch
 import numpy as np
@@ -42,11 +44,15 @@ class DementiaDataset(Dataset):
 
         self.base_path = './dataset'
         self.corpus = pd.read_csv(os.path.join(self.base_path, "corpus.csv"))
+        self.corpus = Preprocess.fill_inv(self.corpus).drop(['index'], 1)         # index 항 제거 (pandas method로 해결 가능)
 
         self.dataset = []
         self.get_dataset()
 
-        self.label = [1] * 309 + [0] * 243
+        len_true = len(self.corpus.loc[self.corpus['label'] == 1]['file_num'].unique())         # 309
+        len_false = len(self.corpus.loc[self.corpus['label'] == 0]['file_num'].unique())
+
+        self.label = [1] * len_true + [0] * len_false
 
         self.x_train, self.x_test, self.y_train, self.y_test = self.split_dataset()
         print()
@@ -69,28 +75,32 @@ class DementiaDataset(Dataset):
     데이터를 구조체로 정리해 구성하는 메소드
     """
     def get_dataset(self):
-        for i in range(552):
+        for i in trange(552):
             struct = DataStruct()
+            try:  # 마지막이 inv로 끝날 경우 sec에 utter가 남아있음. 초기화 해주기
+                del sec
+            except UnboundLocalError:
+                print("let's start to make structure **^^**")
 
             file = self.corpus.loc[self.corpus['file_num'] == i, :]  # 동일 파일 행만 추출
 
             for j in range(len(file)):
                 uttr = file.iloc[j]['sentence']
+                # print(i, j)
                 if file.iloc[j]['who'] == 'INV':
                     try:
                         sec.next_uttr = uttr
                         struct.sections.append(sec)
                         # sec.par = []
                     except UnboundLocalError:
-                        print("no section")
+                        print()
+                        # print("no section")
                     sec = Section()  # 새로운 세션 생성
                     sec.inv = uttr
 
                 if file.iloc[j]['who'] == 'PAR':
                     sec.par.append(uttr)
             self.dataset.append(struct)
-
-
 
     def split_dataset(self):
         x_train, x_test, y_train, y_test = train_test_split(self.dataset, self.label, test_size=0.1, stratify=self.label
@@ -104,4 +114,4 @@ from torch.utils.data import DataLoader
 if __name__ == "__main__":
     data = DementiaDataset(is_tr=True)
     dataloader = DataLoader(data, shuffle=True, batch_size=3, collate_fn=collate_fn)
-    print()
+

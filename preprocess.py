@@ -14,7 +14,7 @@ nltk.download('punkt')
 class Preprocess:
     def __init__(self):
         # self.path = "./dataset/corpus.csv"
-        self.path = "./dataset/xml/corpus.csv"
+        self.path = "./dataset/corpus.csv"
 
         # if not os.path.isfile(self.path):  # corpus.csv 존재 확인
         #     Preprocess.load_raw()
@@ -182,6 +182,32 @@ class Preprocess:
         print("Save to \"", csv_filename, "\"")
         df.to_csv(csv_filename, sep=',', na_rep="NaN", index_label="index")
 
+    """
+    PAR로 시작하는 대화 118개
+    모든 대화는 INV의 "그림을 묘사해주세요" 등과 같은 말로 시작해야 함.
+    해당 대화의 첫 마디를 "just tell me everything that you see happening in that picture"로 추가 (file:0 의 INV 시작발화)
+    """
+    @staticmethod
+    def fill_inv(corp):
+        inv_uttr = "just tell me everything that you see happening in that picture"
+        corpus = corp
+
+        for i in range(552):
+            file = corpus.loc[corpus['file_num'] == i, :]
+            if file.iloc[0]['who'] == 'PAR':
+                idx = file.index[0]
+                row = corpus.iloc[idx]
+
+                inv_df = pd.DataFrame([{'index': -1, 'file_num': row['file_num'], 'file': row['file'],
+                                        'uid': 'other', 'who': "INV", 'group': row['group'], 'sex': row['sex'],
+                                        'age': row['age'], 'sentence': inv_uttr, 'language': row['language'],
+                                        'education': row['education'], 'label': row['label']}])
+
+                corpus = pd.concat([corpus.iloc[:idx], inv_df, corpus.iloc[idx:]], ignore_index=True)
+
+        corpus.reset_index(inplace=True)
+
+        return corpus
 
         # # Test code
         # file = os.path.join(in_path, files[0])
