@@ -15,42 +15,28 @@ from AlzhBERT import AlzhBERT
 device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
 print("device: ", device)
 
+
 def train_loop(dataloader, model, loss_fn, optimizer, epochs):
-
-    train_dataloader = dataloader["train"]
-    valid_dataloader = dataloader["valid"]
-
-    batch_size = 32
+    dataloader = dataloader["train"]
     size = len(train_dataloader.dataset)
     writer = SummaryWriter()
 
-    # loss_history = []
-    # train_loss_history = []
-    # valid_loss_history = []
-
     for epoch in range(epochs):
         print("======== epoch ", epoch, "==========\n")
-
-        for i, (X, y) in tqdm(enumerate(train_dataloader), desc="Train..."):
+        for i, (Xs, ys) in tqdm(enumerate(train_dataloader), desc="Train..."):
+            X_folds,  y_folds = cross_validation(10, Xs, ys)
             model.train()
 
-            print("<Check Data>")
-            print("X[0] who: ", X[0]["who"][:5])
-            print("X[1] who: ", X[1]["who"][:5])
-            print()
+            for X, y in zip(X_folds['train'], y_folds['train']):                    # Xf는 DataStruct의 리스트임
+                print("<Check Data>")
+                print("X 0: ", X[0])
+                print("label 0: ", y[0])
 
-            # Prediction and Loss
-            y = torch.tensor(y, dtype=int)
-            y = y.to(device)
-            # embedded_x = Embedding.bert_embedding(X["sentence"]).to(device)
+                # Prediction and Loss
+                X = torch.tensor(X).to(device)
+                y = torch.tensor(y, dtype=int).to(device)
 
-            enc_loss, dec_loss, sample_num = model(X, y)
-
-            # (cls_out, decoder_out, decoder_tgt)
-            # pred 모드 따로 지정
-            # pred = model(X, y)
-            # pred = torch.squeeze(pred, dim=-1)
-            # loss = loss_fn(pred, y)
+                enc_loss, dec_loss, sample_num = model(X, y)
 
             # loss_history.append(loss.data)
             writer.add_scalar("Total Enc Loss/train", enc_loss, epoch)
@@ -77,17 +63,17 @@ def train_loop(dataloader, model, loss_fn, optimizer, epochs):
                 encloss, decloss, current = mean_enc_train.item(), mean_dec_train.item(), i * len(X)
                 print(f"enc loss: {encloss:>7f} dec loss: {decloss:>7f} [{current:>5d}/{size:>5d}")
 
-        enc_valid_loss, dec_valid_loss, valid_acc, sample_num = validation_loop(valid_dataloader, model, loss_fn, epoch)
-        writer.add_scalar("Total Enc Loss/valid", enc_valid_loss, epoch)
-        mean_enc_valid = enc_valid_loss/sample_num
-        writer.add_scalar("Mean Enc Loss/valid", mean_enc_valid, epoch)
-
-        writer.add_scalar("Total Dec Loss/valid", dec_valid_loss, epoch)
-        mean_dec_valid = dec_valid_loss/sample_num
-        writer.add_scalar("Mean Dec Loss/valid", mean_dec_valid, epoch)
-        writer.add_scalar("Mean Accuracy/valid", valid_acc, epoch)
-
-        print(f"Valid enc loss: {mean_enc_valid:>7f} dec loss: {mean_dec_valid:>7f} acc: {valid_acc:>7f} [{current:>5d}/{size:>5d}")
+        # enc_valid_loss, dec_valid_loss, valid_acc, sample_num = validation_loop(valid_dataloader, model, loss_fn, epoch)
+        # writer.add_scalar("Total Enc Loss/valid", enc_valid_loss, epoch)
+        # mean_enc_valid = enc_valid_loss/sample_num
+        # writer.add_scalar("Mean Enc Loss/valid", mean_enc_valid, epoch)
+        #
+        # writer.add_scalar("Total Dec Loss/valid", dec_valid_loss, epoch)
+        # mean_dec_valid = dec_valid_loss/sample_num
+        # writer.add_scalar("Mean Dec Loss/valid", mean_dec_valid, epoch)
+        # writer.add_scalar("Mean Accuracy/valid", valid_acc, epoch)
+        #
+        # print(f"Valid enc loss: {mean_enc_valid:>7f} dec loss: {mean_dec_valid:>7f} acc: {valid_acc:>7f} [{current:>5d}/{size:>5d}")
 
     writer.flush()
     writer.close()
@@ -121,39 +107,53 @@ def validation_loop(dataloader, model, loss_fn, epoch):
         # val_loss_history.append(val_loss)
     return enc_loss_sum, dec_loss_sum, acc, float(sample_num)
 
-# def cross_validation(dataloader, total_size, model, loss_fn, optimizer, k_fold=10):
-#     train_score = pd.Series()
-#     val_score = pd.Series()
-#
-#     total_size = total_size
-#     fraction = 1/k_fold
-#     seg = int(total_size * fraction)
-#
-#     # tr:train,val:valid; r:right,l:left;  eg: trrr: right index of right side train subset
-#     # index: [trll,trlr],[vall,valr],[trrl,trrr]
-#     for i in range(k_fold):
-#         trll = 0
-#         trlr = i * seg
-#         vall = trlr
-#         valr = i * seg + seg
-#         trrl = valr
-#         trrr = total_size
-#
-#         train_left_indices = list(range(trll, trlr))
-#         train_right_indices = list
-#
-#
-#
-#
-#
-#     return
+
+"""
+cross validation 가능하도록 데이터셋을 나눠줌
+1. test데이터가 있다면 반드시 train에서 분리 후 사용
+2. k_fold: 몇 개의 fold로 나눌지
+3. 다른 곳에서도 사용할수도 있으니 staticmethod 지정
+4. 전체 train 데이터를 나누는게 아니라 train dataloader를 통해 나온 batch를 k_folds로 나누는 것 (전체 데이터를 나눠야한다면 코드 수정필요)
+
+** 리턴값: data, label 딕셔너리
+data['train'][0] -> 첫번째 fold 학습데이터들
+label['train'][0] -> 첫번째 fold 라벨들
+"""
+def cross_validation(k, batch_X, batch_y):
+    length = len(batch_X)
+    n = int(length / k)
+    folds = []
+    folds_y = []
+    data = {'train': [], 'valid': []}      # 데이터
+    label = {'train': [], 'valid': []}      # 라벨
+
+    print(n)
+
+    i = 0
+
+    for i in range(k):
+        if i == (k-1):
+            folds.append(batch_X[n*i:])          # 마지막은 끝까지
+            folds_y.append(batch_y[n*i:])
+        else:
+            folds.append(batch_X[n*i:n*(i+1)])
+            folds_y.append(batch_y[n*i:n*(i+1)])
+
+    for i in range(k):
+        data['valid'].append(folds[i])
+        data['train'].append([f for f in folds if f not in folds[i]])      # valid 제외한 것
+
+        label['valid'].append(folds_y[i])
+        label['train'].append([f for f in folds if f not in folds_y[i]])
+
+    return data, label
 
 if __name__ == "__main__":
 
     # merge_mode = "concat"
     embedding = 'bert'  # choose: bert, word2vec, glove, torch
 
-    learning_rate = 1e-3
+    learning_rate = 1e-2
     batch_size = 64        # 임의 지정. 바꾸기.
     epochs = 70
     dropout_rate = 0.1      # 논문 언급 없음.
@@ -167,23 +167,21 @@ if __name__ == "__main__":
         embedding_size = 768
         vocab_size = None
     else:
-        embedding_size = 100  # 여러 차원으로 실험해보기
+        embedding_size = 100  # 여러 차원으로W 실험해보기
         vocab, vocab_size = pre.tokenize()
 
 
     # Dataloader
-    train_dataset = DementiaDataset(train=True)
+    train_dataset = DementiaDataset(is_tr=True)
     train_dataloader = DataLoader(train_dataset, batch_size=batch_size, shuffle=False, collate_fn=collate_fn)
 
     # for i, (X, label) in enumerate(train_dataloader):
     #     print(i, ':', X, label)
 
-    valid_dataset = DementiaDataset(valid=True)
-    valid_dataloader = DataLoader(valid_dataset, batch_size=batch_size, shuffle=False, collate_fn=collate_fn)
 
     # test_dataset = DementiaDataset(test=True)
     # test_dataloader = DataLoader(test_dataset, shuffle=False, collate_fn=collate_fn)
-    #
+
     model = AlzhBERT(pred=False).to(device)
     loss_fn = nn.MSELoss()
     optimizer = torch.optim.Adam(model.parameters(), lr=learning_rate, weight_decay=weight_decay)
@@ -197,8 +195,7 @@ if __name__ == "__main__":
     print("========================[[Train]]========================\n")
     print()
 
-    train_loop(dataloader={"train": train_dataloader, "valid": valid_dataloader}, model=model,
-               loss_fn=loss_fn, optimizer=optimizer, epochs=epochs)
+    train_loop(dataloader=train_dataloader, model=model, loss_fn=loss_fn, optimizer=optimizer, epochs=epochs)
 
     # print("========================[[Validation]]========================")
     # print()

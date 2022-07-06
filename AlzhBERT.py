@@ -48,6 +48,7 @@ class Decoder(nn.Module):
 
         return out
 
+
 class AlzhBERT(nn.Module):
     def __init__(self, embedding_dim=768, pred=False):
         super(AlzhBERT, self).__init__()

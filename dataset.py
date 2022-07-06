@@ -34,13 +34,18 @@ class Section:
         self.par = []
         self.next_uttr = None
 
-
+# cross validation 할 거기 때문에 valid 데이터셋은 따로 안둠
 class DementiaDataset(Dataset):
     def __init__(self, is_tr=False, is_ts=False):
         super(DementiaDataset, self).__init__()
 
+        if not is_tr & is_ts:
+            print("!!!!!!!!!! Select is_tr or is_ts !!!!!!!!!!")
+            exit()
+
         self.is_tr = is_tr          # is train
         self.is_ts = is_ts          # is test
+
 
         self.base_path = './dataset'
         self.corpus = pd.read_csv(os.path.join(self.base_path, "corpus.csv"))
@@ -107,8 +112,12 @@ class DementiaDataset(Dataset):
                                                             , shuffle=True, random_state=1024)
         return x_train, x_test, y_train, y_test
 
+"""
+get item에서 보내진 데이터를 zip으로 분리해서 내보냄
+"""
 def collate_fn(data):
-    return data
+    X, label = zip(*data)
+    return X, label
 
 from torch.utils.data import DataLoader
 if __name__ == "__main__":
