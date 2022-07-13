@@ -264,9 +264,10 @@ class Preprocess:
             for tup in zip(tokenized_text, indexed_tokens):
                 print('{:<12} {:>6,}'.format(tup[0], tup[1]))
 
-        segments_ids = [1] * len(tokenized_text)
+        # segments_ids = [1] * len(tokenized_text)
 
-        return indexed_tokens, segments_ids
+        return
+        # return indexed_tokens, segments_ids
 
     def call(self):
         self.lowercase()
