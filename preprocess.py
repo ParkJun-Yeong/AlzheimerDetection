@@ -6,7 +6,8 @@ import lxml
 from tqdm import tqdm
 import nltk
 from nltk.tokenize import word_tokenize
-from pytorch_pretrained_bert import BertTokenizer
+from transformers import BertTokenizer
+# from pytorch_pretrained_bert import BertTokenizer
 
 nltk.download('punkt')
 
@@ -251,23 +252,22 @@ class Preprocess:
         return tokenized_sent, vocab
 
     # BERT Embedding 할 때 사용.
+    """
+    order: 몇 번째 문장인지
+    """
     @staticmethod
-    def bert_tokenize(sent, verbose=False):
+    def bert_tokenize(sent, order, verbose=False):
         tokenizer = BertTokenizer.from_pretrained('bert-base-uncased')
 
         # for sent in tqdm(self.corpus["sentence"], desc="Bert Tokenizaiton"):
-        marked_text = "[CLS]" + str(sent) + "[SEP]"
-        tokenized_text = tokenizer.tokenize(marked_text)
-        indexed_tokens = tokenizer.convert_tokens_to_ids(tokenized_text)
+        if order == 0:
+            marked_text = "[CLS]" + str(sent) + "[SEP]"
+        else:
+            marked_text = str(sent) + "[SEP]"
 
-        if verbose:
-            for tup in zip(tokenized_text, indexed_tokens):
-                print('{:<12} {:>6,}'.format(tup[0], tup[1]))
+        tokenized_text = tokenizer.tokenize(marked_text, return_tensors='pt')
 
-        # segments_ids = [1] * len(tokenized_text)
-
-        return
-        # return indexed_tokens, segments_ids
+        return tokenized_text
 
     def call(self):
         self.lowercase()
