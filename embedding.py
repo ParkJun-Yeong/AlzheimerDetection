@@ -1,7 +1,8 @@
 import pandas as pd
 import torch
 from torch.nn.utils.rnn import pad_sequence
-from pytorch_pretrained_bert import BertTokenizer, BertModel, BertForMaskedLM
+from transformers import BertModel
+# from pytorch_pretrained_bert import BertTokenizer, BertModel, BertForMaskedLM
 from preprocess import Preprocess
 from tqdm import tqdm
 
@@ -23,109 +24,45 @@ class Embedding:
     bert_embedding
     - (batch_sentences): None(corpus 데이터 모두 임베딩 후 리턴), NotNone(들어온 sentence 배치 임베딩 후 리턴)
     - (sent_embed): True(문장 단위 임베딩, 1x768 리턴), False(토큰 단위 임베딩, seqlen x768 리턴)
+    
+    - sequences: (N,num_tokens)
+    - mode_token
     """
     @staticmethod
-    def bert_embedding(batch_sentences=None, sent_embed=False):
+    def bert_embedding(sequences, mode_token=False, mode_sent=False):
+        if (not mode_token) & (not mode_sent):
+            print("Error: select mode")
+            return -1
 
-        # corpus sentence 전체 임베딩 -> .csv로 저장
-        if batch_sentences is None:
-            columns = ["embedded", "label"]
-            embedding_dataframe = pd.DataFrame(columns=columns)
+        if mode_token & mode_sent:
+            print("Error: select only one mode")
+            return -1
 
-            pre = Preprocess()
+        try:
+            num_batch = len(sequences)          # 리스트라면
+            print("multiple sequence")
+        except:
+            num_batch = 1
+            print("single sequence")
 
-            # pre-trained model의 weight을 로드.
-            model = BertModel.from_pretrained('bert-base-uncased')
+        model = BertModel.from_pretrained('bert-base-uncased')
+        outputs = []
 
-            # model을 evaluation mode에 두어서 feed-forward operation을 통과하게 함.
-            model.eval()
+        for i in range(num_batch):
+            indexed_tokens = Preprocess.bert_tokenize(sequences[i], order=i)
 
-            # tmp_sent_dataframe = pd.DataFrame(columns=[columns[0]])
-            for i, sent in tqdm(enumerate(pre.corpus["sentence"]), desc="Extracting Bert Embeddings..."):
-                indexed_tokens, segments_ids = pre.bert_tokenize(sent)
+            with torch.no_grad():
+                output = model(**indexed_tokens)[0].squeeze(0)
 
-                # Convert inputs to Pytorch tensors.
-                tokens_tensor = torch.tensor([indexed_tokens])
-                segments_tensors = torch.tensor([segments_ids])
+            if mode_token:
+                outputs.append(output)         # (batch, seq_length, embedidng)
+            elif mode_sent:
+                output_mean = torch.mean(output, dim=1)     # (batch, embedding)
+                outputs.append(output_mean)
 
-                with torch.no_grad():
-                    encoded_layers, _ = model(tokens_tensor, segments_tensors)
+        word_embedding = pad_sequence(outputs).permute(1, 0, 2)
 
-                token_embeddings = torch.stack(encoded_layers, dim=0)
-                print("token_embeddings.size(): ", token_embeddings.size())
-
-                token_embeddings = torch.squeeze(token_embeddings, dim=1)
-                token_embeddings = token_embeddings.permute(1,0,2)
-
-                # Word Vectors (concatenate)
-                token_vecs_cat = []
-                for token in token_embeddings:
-                    cat_vec = torch.cat((token[-1], token[-2], token[-3], token[-4]), dim=0)
-                    token_vecs_cat.append(cat_vec)
-
-                # print("Shape is: %d x %d" % (len(token_vecs_cat),
-                #                              len(token_vecs_cat[0])))
-
-                # 문장 벡터 만들기.
-                token_vecs = encoded_layers[11][0]
-                sentence_embedding = torch.mean(token_vecs, dim=0)
-
-                tmp_sent_dataframe = tmp_sent_dataframe.append({"embedded": [pd.Series(sentence_embedding)]}, ignore_index=True)
-
-            embedding_dataframe["label"] = pre.corpus["label"]
-            embedding_dataframe["embedded"] = tmp_sent_dataframe["embedded"]
-
-            return embedding_dataframe
-
-        else:                               # 배치 문장씩 임베딩 한 후 결과 반환
-            model = BertModel.from_pretrained('bert-base-uncased')
-            model.eval()
-
-            batch_embedding = []
-            for sentence in tqdm(batch_sentences, desc="Tokenizing and Embedding..."):
-                indexed_tokens, segments_ids = Preprocess.bert_tokenize(sentence)
-
-                # Convert inputs to Pytorch tensors.
-                tokens_tensor = torch.tensor([indexed_tokens])
-                segments_tensors = torch.tensor([segments_ids])
-
-                with torch.no_grad():
-                    encoded_layers, _ = model(tokens_tensor, segments_tensors)
-
-                token_embeddings = torch.stack(encoded_layers, dim=0)
-                # print("token_embeddings.size(): ", token_embeddings.size())
-
-                token_embeddings = torch.squeeze(token_embeddings, dim=1)
-                token_embeddings = token_embeddings.permute(1, 0, 2)
-
-                # Word Vectors (concatenate)
-                token_vecs_cat = []
-                for token in token_embeddings:
-                    cat_vec = torch.cat((token[-1], token[-2], token[-3], token[-4]), dim=0)
-                    token_vecs_cat.append(cat_vec)
-
-                # print("Shape is: %d x %d" % (len(token_vecs_cat),
-                #                              len(token_vecs_cat[0])))
-
-                # 문장 벡터 만들기.
-                token_vecs = encoded_layers[11][0]                  # (seq_len, 768)
-                sentence_embedding = torch.mean(token_vecs, dim=0)
-                sentence_embedding = torch.unsqueeze(input=sentence_embedding, dim=0)           # (1, 768)
-
-                if sent_embed:
-                    batch_embedding.append(sentence_embedding)
-                else:
-                    batch_embedding.append(token_vecs)
-
-                # if batch_embedding is None:
-                #     batch_embedding = sentence_embedding
-                # else:
-                #     batch_embedding = torch.concat((batch_embedding, sentence_embedding), dim=0)
-
-            batch_embedding = pad_sequence(batch_embedding).permute(1, 0, 2)
-            print("batch_embedding size: ", batch_embedding.size())
-
-            return batch_embedding
+        return word_embedding
 #
 #
 # if __name__ == "__main__":

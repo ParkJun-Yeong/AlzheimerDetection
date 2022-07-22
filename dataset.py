@@ -34,6 +34,7 @@ class Section:
         self.par = []
         self.next_uttr = None
 
+
 # cross validation 할 거기 때문에 valid 데이터셋은 따로 안둠
 class DementiaDataset(Dataset):
     def __init__(self, is_tr=False, is_ts=False):
