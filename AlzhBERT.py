@@ -56,6 +56,10 @@ class Decoder(nn.Module):
 
         return out
 
+"""
+- max_token_num: 한 문장 내 최대 토큰 개수
+- max_seq_len: 입력 값으로 들어갈 문장의 최대 수 (첫번째 어탠션 네트워크 개수)
+"""
 
 class AlzhBERT(nn.Module):
     def __init__(self, max_token_num, max_seq_len, num_heads, embedding_dim=768):
@@ -65,7 +69,7 @@ class AlzhBERT(nn.Module):
         self.max_seq_len = max_seq_len
         # self.pred = pred        # True면 prdiction (cls_out, decoder_out, decoder_tgt) 리턴, False면 loss 리턴
 
-        self.token_level_attn = nn.ModuleList([SelfAttention(embedding_dim, num_heads=num_heads) for _ in range(max_token_num)])
+        self.token_level_attn = nn.ModuleList([SelfAttention(embedding_dim, num_heads=num_heads) for _ in range(max_seq_len)])
         self.sentence_level_attn = SelfAttention(embedding_dim, num_heads=num_heads)
 
         self.encoder = Encoder()
@@ -100,11 +104,8 @@ class AlzhBERT(nn.Module):
                 y_dec = embedding(next_uttr)
 
                 # token-level positional embedding
-
-
-
                 outputs = []
-                for i in range(self.max_token_len):
+                for i in range(self.max_seq_len):
                     attn_output, attn_weights = self.token_level_attn[i](par[i])
                     outputs.append(attn_output)
 

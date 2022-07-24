@@ -26,7 +26,8 @@ class Embedding:
     - (sent_embed): True(문장 단위 임베딩, 1x768 리턴), False(토큰 단위 임베딩, seqlen x768 리턴)
     
     - sequences: (N,num_tokens)
-    - mode_token
+    - mode_token: 토큰 단위 임베딩, seqlen x 768 리턴
+    - mode_sent: 문장 단위 임베딩, 1 x 768 리턴
     """
     @staticmethod
     def bert_embedding(sequences, mode_token=False, mode_sent=False):
