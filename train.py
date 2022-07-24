@@ -153,7 +153,7 @@ if __name__ == "__main__":
     # merge_mode = "concat"
     embedding = 'bert'  # choose: bert, word2vec, glove, torch
 
-    learning_rate = 1e-2
+    learning_rate = 1e-3
     batch_size = 64        # 임의 지정. 바꾸기.
     epochs = 70
     dropout_rate = 0.1      # 논문 언급 없음.
@@ -182,7 +182,7 @@ if __name__ == "__main__":
     # test_dataset = DementiaDataset(test=True)
     # test_dataloader = DataLoader(test_dataset, shuffle=False, collate_fn=collate_fn)
 
-    model = AlzhBERT(pred=False).to(device)
+    model = AlzhBERT(max_token_num, max_seq_len, num_heads=6).to(device)
     loss_fn = nn.MSELoss()
     optimizer = torch.optim.Adam(model.parameters(), lr=learning_rate, weight_decay=weight_decay)
     # optimizer2 = torch.optim.Adam(model.parameters(), lr=learning_rate, weight_decay=weight_decay)
