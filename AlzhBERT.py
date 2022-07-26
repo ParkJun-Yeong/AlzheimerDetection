@@ -37,6 +37,9 @@ class SelfAttention(nn.Module):
 class Encoder(nn.Module):
     def __init__(self, embedding_dim):
         super(Encoder, self).__init__()
+        self.encoder = 
+        self.sigmoid = nn.Sigmoid()
+        self.feedforward = nn.Linear()
 
     def forward(self, x):
         out = self.encoder(x)
@@ -67,6 +70,7 @@ class AlzhBERT(nn.Module):
         self.embedding_dim = embedding_dim
         self.max_token_len = max_token_num
         self.max_seq_len = max_seq_len
+        self.sec_div_flag = True               # section divide flag
         # self.pred = pred        # True면 prdiction (cls_out, decoder_out, decoder_tgt) 리턴, False면 loss 리턴
 
         self.token_level_attn = nn.ModuleList([SelfAttention(embedding_dim, num_heads=num_heads) for _ in range(max_seq_len)])
@@ -74,6 +78,7 @@ class AlzhBERT(nn.Module):
 
         self.encoder = Encoder()
         self.decoder = Decoder()
+
 
     def calculate_loss(self, pred, tgt):
         loss_fn = nn.MSELoss()
@@ -92,43 +97,48 @@ class AlzhBERT(nn.Module):
         preds_dec = []
 
         for Xs, y in (batch, labels):
-            for X in Xs.sections:
-                inv = X.inv
-                par = X.par
-                next_uttr = X.next_uttr
+            if self.sec_div_flag:
+                for X in Xs.sections:
+                    inv = X.inv
+                    par = X.par
+                    next_uttr = X.next_uttr
 
-                # 임베딩
-                x_inv = embedding(inv)
-                x_par = embedding(par)
-                y_enc = y
-                y_dec = embedding(next_uttr)
+                    # 임베딩
+                    x_inv = embedding(inv)
+                    x_par = embedding(par)
+                    y_enc = y
+                    y_dec = embedding(next_uttr)
 
-                # token-level positional embedding
-                outputs = []
-                for i in range(self.max_seq_len):
-                    attn_output, attn_weights = self.token_level_attn[i](par[i])
-                    outputs.append(attn_output)
+                    # token-level positional embedding
+                    outputs = []
+                    for i in range(self.max_seq_len):
+                        attn_output, attn_weights = self.token_level_attn[i](par[i])
+                        outputs.append(attn_output)
 
-                context = torch.concat(outputs, dim=-3)
+                    context = torch.concat(outputs, dim=-3)
 
-                # sentence-level positional embedding
+                    # sentence-level positional embedding
 
-                context = self.sentence_level_attn(context.to(device))[0]
-                context = torch.mean(context, dim=-3).unsqueeze(0)
-                context = torch.mean(context, dim=-2)
+                    context = self.sentence_level_attn(context.to(device))[0]
+                    context = torch.mean(context, dim=-3).unsqueeze(0)
+                    context = torch.mean(context, dim=-2)
 
-                # sentence embedding 추가
+                    # sentence embedding 추가
 
-                out_enc, pred_enc = self.encoder(x_inv, context)
-                pred_dec = self.decoder(out_enc)
+                    out_enc, pred_enc = self.encoder(x_inv, context)
+                    pred_dec = self.decoder(out_enc)
 
-                preds_enc.append(pred_enc)
-                preds_dec.append(pred_dec)
+                    preds_enc.append(pred_enc)
+                    preds_dec.append(pred_dec)
+
+            elif not self.sec_div_flag:
+                idx = [i for i in range(len(Xs.dialogue)) if Xs.who[i] == 'INV']
+
+                for i in range(len(idx)):
+                    x = Xs.dialogue[:i]
+
 
         return preds_enc, preds_dec
-
-
-
 
             # ret = []
             # inv = input["sentence"][0].squeeze()        # all input: [seq_len, 768]

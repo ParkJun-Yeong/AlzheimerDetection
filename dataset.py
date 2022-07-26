@@ -20,7 +20,7 @@ from dataclasses import dataclass   # 구조체
 4. 각 DataStruct는 독립적이다. (다른 파일이므로)
 """
 
-
+# Section 별로 나누어서 학습할 때
 @dataclass
 class DataStruct:
     def __init__(self):
@@ -33,6 +33,14 @@ class Section:
         self.inv = None
         self.par = []
         self.next_uttr = None
+
+
+# Section을 나누지 않고 학습할 때
+@dataclass()
+class Dialogue:
+    def __init__(self):
+        self.dialogue = []
+        self.who = []
 
 
 # cross validation 할 거기 때문에 valid 데이터셋은 따로 안둠
@@ -53,7 +61,12 @@ class DementiaDataset(Dataset):
         self.corpus = Preprocess.fill_inv(self.corpus).drop(['index'], 1)         # index 항 제거 (pandas method로 해결 가능)
 
         self.dataset = []
-        self.get_dataset()
+
+        # # Section 분리
+        # self.get_struct()
+
+        # Section 비분리
+        self.get_dialogue()
 
         len_true = len(self.corpus.loc[self.corpus['label'] == 1]['file_num'].unique())         # 309
         len_false = len(self.corpus.loc[self.corpus['label'] == 0]['file_num'].unique())
@@ -80,7 +93,7 @@ class DementiaDataset(Dataset):
     corpus를 동일 파일로 구분 & 각 파일을 여러 section으로 나눔
     데이터를 구조체로 정리해 구성하는 메소드
     """
-    def get_dataset(self):
+    def get_struct(self):
         for i in trange(552):
             struct = DataStruct()
             try:  # 마지막이 inv로 끝날 경우 sec에 utter가 남아있음. 초기화 해주기
@@ -107,6 +120,25 @@ class DementiaDataset(Dataset):
                 if file.iloc[j]['who'] == 'PAR':
                     sec.par.append(uttr)
             self.dataset.append(struct)
+    
+    """
+    같은 파일의 발화(sentence)와 발화자(who)를 빼서 Dialogue 구조체로 정리하는 메소드
+    Section으로 분리하지 않을 경우만 사용
+    """
+    def get_dialogue(self):
+        for i in trange(552):
+            file = self.corpus.loc[self.corpus['file_num'] == i, :]  # 동일 파일 행만 추출
+            diag = Dialogue()
+
+            for j in range(len(file)):
+                uttr = file.iloc[j]['sentence']
+                who = file.iloc[j]['who']
+
+                diag.dialogue.append(uttr)
+                diag.who.append(who)
+
+            self.dataset.append(diag)
+
 
     def split_dataset(self):
         x_train, x_test, y_train, y_test = train_test_split(self.dataset, self.label, test_size=0.1, stratify=self.label

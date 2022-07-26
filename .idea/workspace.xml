@@ -1,8 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="4cd0ffeb-81ee-4a86-a7bd-fcb1a202b408" name="Default Changelist" comment="220713: AlzhBERT, Embedding 수정">
+    <list default="true" id="4cd0ffeb-81ee-4a86-a7bd-fcb1a202b408" name="Default Changelist" comment="220713: Embedding 수정">
+      <change beforePath="$PROJECT_DIR$/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/AlzhBERT.py" beforeDir="false" afterPath="$PROJECT_DIR$/AlzhBERT.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/dataset.py" beforeDir="false" afterPath="$PROJECT_DIR$/dataset.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -55,6 +58,7 @@
     <option name="showLibraryContents" value="true" />
   </component>
   <component name="PropertiesComponent">
+    <property name="ASKED_MARK_IGNORED_FILES_AS_EXCLUDED" value="true" />
     <property name="RunOnceActivity.OpenProjectViewOnStart" value="true" />
     <property name="RunOnceActivity.ShowReadmeOnStart" value="true" />
     <property name="SHARE_PROJECT_CONFIGURATION_FILES" value="true" />
@@ -286,14 +290,14 @@
       <method v="2" />
     </configuration>
     <list>
-      <item itemvalue="Python.preprocess" />
-      <item itemvalue="Python.train_AlzhBERT" />
-      <item itemvalue="Python.embedding" />
-      <item itemvalue="Python.train" />
       <item itemvalue="Python.chatbot_demo" />
       <item itemvalue="Python.dataset" />
-      <item itemvalue="Python.train_server" />
+      <item itemvalue="Python.embedding" />
       <item itemvalue="Python.model" />
+      <item itemvalue="Python.preprocess" />
+      <item itemvalue="Python.train" />
+      <item itemvalue="Python.train_AlzhBERT" />
+      <item itemvalue="Python.train_server" />
     </list>
   </component>
   <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
@@ -315,7 +319,7 @@
       <workItem from="1655907836218" duration="28067000" />
       <workItem from="1655966349247" duration="23572000" />
       <workItem from="1656150230994" duration="57666000" />
-      <workItem from="1657731301894" duration="657000" />
+      <workItem from="1657731301894" duration="7479000" />
     </task>
     <task id="LOCAL-00001" summary="Initial Commit">
       <created>1644142023959</created>
@@ -520,7 +524,14 @@
       <option name="project" value="LOCAL" />
       <updated>1657702148256</updated>
     </task>
-    <option name="localTasksCounter" value="30" />
+    <task id="LOCAL-00030" summary="220713: Embedding 수정">
+      <created>1658476043448</created>
+      <option name="number" value="00030" />
+      <option name="presentableId" value="LOCAL-00030" />
+      <option name="project" value="LOCAL" />
+      <updated>1658476043448</updated>
+    </task>
+    <option name="localTasksCounter" value="31" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -571,7 +582,6 @@
     <option name="oldMeFiltersMigrated" value="true" />
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="2022.05.20.&#10;Tokenization, Embedding, Training&#10;push가 뭔가 잘 안된다;;;" />
     <MESSAGE value="2022.05.23.model_완성" />
     <MESSAGE value="2022.05.25.Preprocess,Embedding 코드 작성&#10;(nltk, berttokenizer 등)" />
     <MESSAGE value="여러가지 수정" />
@@ -596,7 +606,8 @@
     <MESSAGE value="Update: demo UI 수정, dataset 수정" />
     <MESSAGE value="220706: cross_validation추가, 데이터로더 정상작동 확인, collate_fn 수정" />
     <MESSAGE value="220713: AlzhBERT, Embedding 수정" />
-    <option name="LAST_COMMIT_MESSAGE" value="220713: AlzhBERT, Embedding 수정" />
+    <MESSAGE value="220713: Embedding 수정" />
+    <option name="LAST_COMMIT_MESSAGE" value="220713: Embedding 수정" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
