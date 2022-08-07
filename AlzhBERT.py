@@ -1,6 +1,8 @@
 import torch
 import torch.nn as nn
 from dataclasses import dataclass   # 구조체
+from embedding import Embedding
+from transformers import BertModel, BertConfig
 
 import random
 from torch.nn.utils.rnn import pad_sequence
@@ -34,15 +36,36 @@ class SelfAttention(nn.Module):
         return attn_output, attn_output_weights
 
 
+"""
+Huggingface BertModel
+
+- vocab_size = 30522
+- hidden_size = 768
+- num_hidden_layers = 12
+- num_attention_heads = 12
+- intermediate_size = 3072
+- hidden_act = 'gelu'
+- hidden_dropout_prob = 0.1
+- attention_probs_dropout_prob = 0.1
+- max_position_embeddings = 512
+- type_vocab_size = 2
+- initializer_range = 0.02
+- layer_norm_eps = 1e-12
+- pad_token_id = 0
+- position_embedding_type = 'absolute'
+- use_cache = True
+- classifier_dropout = None
+"""
 class Encoder(nn.Module):
     def __init__(self, embedding_dim):
         super(Encoder, self).__init__()
-        self.encoder = 
+        self.config = BertConfig()
+        self.encoder = BertModel(self.config)
         self.sigmoid = nn.Sigmoid()
         self.feedforward = nn.Linear()
 
     def forward(self, x):
-        out = self.encoder(x)
+        out = self.encoder(input_ids=x, attention_mask, token_type_ids, position_ids)
         cls_out = torch.mean(out, dim=-2)
         cls_out = self.feedforward(cls_out)
         cls_out = self.sigmoid(cls_out)
@@ -104,10 +127,10 @@ class AlzhBERT(nn.Module):
                     next_uttr = X.next_uttr
 
                     # 임베딩
-                    x_inv = embedding(inv)
-                    x_par = embedding(par)
+                    x_inv = Embedding.bert_embedding(inv, mode_token=True)
+                    x_par = Embedding.bert_embedding(par, mode_token=True)
                     y_enc = y
-                    y_dec = embedding(next_uttr)
+                    y_dec = Embedding.bert_embedding(next_uttr, mode_token=True)
 
                     # token-level positional embedding
                     outputs = []
