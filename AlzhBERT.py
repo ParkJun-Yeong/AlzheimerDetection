@@ -59,7 +59,8 @@ Huggingface BertModel
 class Encoder(nn.Module):
     def __init__(self, embedding_dim):
         super(Encoder, self).__init__()
-        self.config = BertConfig()
+        # self.config = BertConfig()
+        self.config = BertConfig.from_pretrained('bert-base-uncased')
         self.encoder = BertModel(self.config)
         self.sigmoid = nn.Sigmoid()
         self.feedforward = nn.Linear()
@@ -88,16 +89,16 @@ class Decoder(nn.Module):
 """
 
 class AlzhBERT(nn.Module):
-    def __init__(self, max_token_num, max_seq_len, num_heads, embedding_dim=768):
+    def __init__(self, max_token, max_seq, num_heads, embedding_dim=768):
         super(AlzhBERT, self).__init__()
         self.embedding_dim = embedding_dim
-        self.max_token_len = max_token_num
-        self.max_seq_len = max_seq_len
-        self.sec_div_flag = True               # section divide flag
+        self.max_token = max_token
+        self.max_seq = max_seq
+        self.sec_div_flag = True               # Section을 나눌 것인지 아닌지 플래그
         # self.pred = pred        # True면 prdiction (cls_out, decoder_out, decoder_tgt) 리턴, False면 loss 리턴
 
-        self.token_level_attn = nn.ModuleList([SelfAttention(embedding_dim, num_heads=num_heads) for _ in range(max_seq_len)])
-        self.sentence_level_attn = SelfAttention(embedding_dim, num_heads=num_heads)
+        self.f = nn.ModuleList([SelfAttention(embedding_dim, num_heads=num_heads) for _ in range(max_seq)])     # token-level attention
+        self.g = SelfAttention(embedding_dim, num_heads=num_heads)              # sentence-level attention
 
         self.encoder = Encoder()
         self.decoder = Decoder()
@@ -109,9 +110,10 @@ class AlzhBERT(nn.Module):
         return loss
 
     """
-    batch: DataStruct 리스트 (배치)
-    Xs: DataStruct 하나
+    batch: DataStruct 리스트 (배치) or Dialogue 리스트
+    Xs: DataStruct
     X: 한 DataStruct의 한 Section
+    D: Dialogue
     
     labels: batch의 라벨들 (DataStruct 당 하나)
     """
@@ -119,12 +121,12 @@ class AlzhBERT(nn.Module):
         preds_enc = []
         preds_dec = []
 
-        for Xs, y in (batch, labels):
+        for D, y in (batch, labels):
             if self.sec_div_flag:
-                for X in Xs.sections:
-                    inv = X.inv
-                    par = X.par
-                    next_uttr = X.next_uttr
+                for sections in D.sections:
+                    inv = sections.inv
+                    par = sections.par
+                    next_uttr = sections.next_uttr
 
                     # 임베딩
                     x_inv = Embedding.bert_embedding(inv, mode_token=True)
@@ -155,10 +157,15 @@ class AlzhBERT(nn.Module):
                     preds_dec.append(pred_dec)
 
             elif not self.sec_div_flag:
-                idx = [i for i in range(len(Xs.dialogue)) if Xs.who[i] == 'INV']
+                idx = [i for i in range(len(D.dialogue)) if D.who[i] == 'INV']          # INV 발화 인덱스 (idx[0] = 0)
 
                 for i in range(len(idx)):
-                    x = Xs.dialogue[:i]
+                    if i == 0:
+                        continue                # i=0 이면 발화를 나눌 수 없기 때문에 다음 턴으로 넘어감
+                    x = D.dialogue[i-1:i]
+                    x_inv =
+                    x_inv
+
 
 
         return preds_enc, preds_dec
