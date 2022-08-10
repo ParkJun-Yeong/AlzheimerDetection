@@ -35,6 +35,8 @@ class SelfAttention(nn.Module):
 
         return attn_output, attn_output_weights
 
+def position_encoding():
+    return
 
 """
 Huggingface BertModel
@@ -66,7 +68,8 @@ class Encoder(nn.Module):
         self.feedforward = nn.Linear()
 
     def forward(self, x):
-        out = self.encoder(input_ids=x, attention_mask, token_type_ids, position_ids)
+        input = position_encoding(x)
+        out = self.encoder(input_ids=input, attention_mask, token_type_ids, position_ids)
         cls_out = torch.mean(out, dim=-2)
         cls_out = self.feedforward(cls_out)
         cls_out = self.sigmoid(cls_out)
@@ -77,6 +80,8 @@ class Decoder(nn.Module):
     def __init__(self, embedding_dim):
         super(Decoder, self).__init__()
         # self.bert = BertForQuestionAnswering.from_pretrained('bert-base-uncased')
+        decoder_layer = nn.TransformerDecoderLayer(d_model=512, nhead=8)
+        self.decoder = nn.TransformerDecoder(decoder_layer=decoder_layer, num_layers=6)
 
     def forward(self, tgt, memory):
         out = self.decoder(tgt, memory)
