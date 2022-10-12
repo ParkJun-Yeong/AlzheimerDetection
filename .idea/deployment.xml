@@ -1,32 +1,18 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
-  <component name="PublishConfigData" autoUpload="Always" remoteFilesAllowedToDisappearOnAutoupload="false">
+  <component name="PublishConfigData" autoUpload="Always" serverName="juny@220.149.235.234:22 password" remoteFilesAllowedToDisappearOnAutoupload="false">
     <serverData>
-      <paths name="juny@172.20.11.51:22">
-        <serverdata>
-          <mappings>
-            <mapping local="$PROJECT_DIR$" web="/" />
-          </mappings>
-        </serverdata>
-      </paths>
-      <paths name="juny@172.20.11.51:22 (1)">
-        <serverdata>
-          <mappings>
-            <mapping local="$PROJECT_DIR$" web="/" />
-          </mappings>
-        </serverdata>
-      </paths>
       <paths name="juny@172.20.11.51:22 password">
         <serverdata>
           <mappings>
-            <mapping local="$PROJECT_DIR$" web="/" />
+            <mapping deploy="/tmp/pycharm_project_49" local="$PROJECT_DIR$" />
           </mappings>
         </serverdata>
       </paths>
-      <paths name="juny@172.20.11.51:22 password (1)">
+      <paths name="juny@220.149.235.234:22 password">
         <serverdata>
           <mappings>
-            <mapping deploy="/tmp/pycharm_project_558" local="$PROJECT_DIR$" />
+            <mapping deploy="/tmp/pycharm_project_196" local="$PROJECT_DIR$" />
           </mappings>
         </serverdata>
       </paths>

@@ -1,8 +1,8 @@
 import pandas as pd
 import torch
 from torch.nn.utils.rnn import pad_sequence
-from transformers import BertModel
-# from pytorch_pretrained_bert import BertTokenizer, BertModel, BertForMaskedLM
+# from transformers import BertModel
+from pytorch_pretrained_bert import BertModel
 from preprocess import Preprocess
 from tqdm import tqdm
 
@@ -39,31 +39,52 @@ class Embedding:
             print("Error: select only one mode")
             return -1
 
-        try:
+        if isinstance(sequences, list):
             num_batch = len(sequences)          # 리스트라면
             print("multiple sequence")
-        except:
+        else:
             num_batch = 1
+            sequences = [sequences]
             print("single sequence")
 
         model = BertModel.from_pretrained('bert-base-uncased')
+        model.eval()
         outputs = []
 
         for i in range(num_batch):
-            indexed_tokens = Preprocess.bert_tokenize(sequences[i], order=i)
+            indexed_tokens, segments_ids = Preprocess.bert_tokenize(sequences[i], order=i)
+            tokens_tensor = torch.tensor([indexed_tokens])
+            segments_tensor = torch.tensor([segments_ids])
 
             with torch.no_grad():
-                output = model(**indexed_tokens)[0].squeeze(0)
+                encoded_layers, _ = model(tokens_tensor, segments_tensor)
+
+            token_embeddings = torch.stack(encoded_layers, dim=0).squeeze(1)
+            # token_embeddings = token_embeddings.permute(1,0,2)
+
+            # token_vecs_cat = []
+            # for token in token_embeddings:
+                # cat_vec = torch.cat((token[-1], token[-2], token[-3], token[-4]), dim=0)
+            # token_vecs_cat.append(token_embeddings)
+
+            token_embeddings = encoded_layers[11]                # Last Hidden: (batch, seq_len, 768)
+            # token_embeddings = torch.mean(token_embeddings, dim=0)              # Mean: (batch, seq_len, 768)
+
 
             if mode_token:
-                outputs.append(output)         # (batch, seq_length, embedidng)
+                if num_batch > 1:           # multiple sequences
+                    outputs.append(token_embeddings)      # (batch, seq_length, embedidng)
+                else:
+                    outputs = token_embeddings            # (1, seq_length, embedding)
             elif mode_sent:
-                output_mean = torch.mean(output, dim=1)     # (batch, embedding)
-                outputs.append(output_mean)
+                sentence_embedding = torch.mean(token_embeddings, dim=-2)     # (batch, embedding)
+                # sentence_embedding = sentence_embedding.unsqueeze()
+                outputs.append(sentence_embedding)
 
-        word_embedding = pad_sequence(outputs).permute(1, 0, 2)
+        outputs = pad_sequence(outputs).permute(1, 0, 2)
+        print("result embedding size: ", outputs.size())
 
-        return word_embedding
+        return outputs
 #
 #
 # if __name__ == "__main__":

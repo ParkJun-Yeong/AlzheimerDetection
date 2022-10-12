@@ -1,13 +1,14 @@
 import os
 import pandas as pd
+import torch
 import xml.etree.ElementTree as elemTree
 from bs4 import BeautifulSoup as bf
 import lxml
-from tqdm import tqdm
+from tqdm import tqdm, trange
 import nltk
 from nltk.tokenize import word_tokenize
-from transformers import BertTokenizer
-# from pytorch_pretrained_bert import BertTokenizer
+# from transformers import BertTokenizer
+from pytorch_pretrained_bert import BertTokenizer
 
 nltk.download('punkt')
 
@@ -210,6 +211,33 @@ class Preprocess:
 
         return corpus
 
+    @staticmethod
+    def fill_inv_from_dict(corp):
+        inv_uttr = corp[0]["sentence"][0].unsqueeze(0)
+
+        corpus = corp
+
+        for i in trange(552):
+            if corpus[i]['who'][0] == "PAR":
+                diff = inv_uttr.size(-2) - corpus[i]['sentence'].size(-2)
+
+                if diff < 0:
+                    pad = torch.zeros((inv_uttr.size(0), abs(diff), inv_uttr.size(-1)))
+                    padded_inv = torch.concat((inv_uttr, pad), dim=-2)
+                else:
+                    padded_inv = inv_uttr
+                    pad = torch.zeros((corpus[i]["sentence"].size(0), abs(diff), inv_uttr.size(-1)))
+                    corpus[i]["sentence"] = torch.concat((corpus[i]["sentence"], pad), dim=-2)
+                # diff = abs(padded_inv.size(0) - corpus[i]["sentence"].size(0))
+                # pad = torch.zeros((diff, padded_inv.size(-2), padded_inv.size(-1)))
+                # padded_inv = torch.concat((padded_inv, pad), dim=0)
+
+                corpus[i]['sentence'] = torch.concat((padded_inv, corpus[i]["sentence"]))
+                corpus[i]["who"].insert(0, "INV")
+
+        return corpus
+
+
         # # Test code
         # file = os.path.join(in_path, files[0])
         # with open(file, 'r') as f:
@@ -260,14 +288,22 @@ class Preprocess:
         tokenizer = BertTokenizer.from_pretrained('bert-base-uncased')
 
         # for sent in tqdm(self.corpus["sentence"], desc="Bert Tokenizaiton"):
-        if order == 0:
-            marked_text = "[CLS]" + str(sent) + "[SEP]"
-        else:
-            marked_text = str(sent) + "[SEP]"
+        # if order == 0:
+        #     marked_text = "[CLS] " + str(sent) + " [SEP]"
+        # else:
+        #     marked_text = str(sent) + " [SEP]"
 
-        tokenized_text = tokenizer.tokenize(marked_text, return_tensors='pt')
+        marked_text = "[CLS] " + str(sent) + " [SEP]"
+        tokenized_text = tokenizer.tokenize(marked_text)
+        indexed_tokens = tokenizer.convert_tokens_to_ids(tokenized_text)
 
-        return tokenized_text
+        if verbose:
+            for tup in zip(tokenized_text, indexed_tokens):
+                print('{:<12} {:>6,}'.format(tup[0], tup[1]))
+
+        segments_ids = [1] * len(tokenized_text)
+
+        return indexed_tokens, segments_ids
 
     def call(self):
         self.lowercase()

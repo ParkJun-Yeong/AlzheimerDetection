@@ -163,9 +163,8 @@ class AlzhBERT(nn.Module):
 
                 encoder_out, cls_out = self.encoder(torch.concat([inv_input, context]).unsqueeze(0))
                 decoder_out = self.decoder(decoder_tgt, encoder_out.to(device))
-
                 cls_out = cls_out.unsqueeze(0)
-                loss['enc'] += self.calculate_loss(cls_out, cls_label)
+                loss['enc'] += self.calculate_loss(cls_out.reshape(cls_label.shape), cls_label)
                 loss['dec'] += self.calculate_loss(decoder_out, decoder_tgt)
                 sample_num += 1
 
@@ -180,14 +179,3 @@ class AlzhBERT(nn.Module):
             return loss['enc'], loss['dec'], accuracy, sample_num
         else:
             return loss['enc'], loss['dec'], sample_num
-
-
-
-
-
-
-
-
-
-
-

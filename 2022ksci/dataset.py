@@ -16,7 +16,7 @@ class DementiaDataset(Dataset):
         self.valid = valid
         self.test = test
 
-        self.base_path = './dataset/xml'
+        self.base_path = './dataset'
         self.corpus = pd.read_csv(os.path.join(self.base_path, "corpus.csv"))
         # self.transform = transforms.Compose([transforms.ToTensor()])
 

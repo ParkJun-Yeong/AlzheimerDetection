@@ -14,7 +14,7 @@ nltk.download('punkt')
 class Preprocess:
     def __init__(self):
         # self.path = "./dataset/corpus.csv"
-        self.path = "./dataset/xml/corpus.csv"
+        self.path = "./dataset/corpus.csv"
 
         # if not os.path.isfile(self.path):  # corpus.csv 존재 확인
         #     Preprocess.load_raw()
@@ -35,8 +35,8 @@ class Preprocess:
     @staticmethod
     def load_raw():
         columns = ['data_path', 'sentence', 'label']
-        path = {"Dementia": "./dataset/dementia",
-                "Control": "./dataset/control"}
+        path = {"Dementia": "./dataset/Dementia",
+                "Control": "./dataset/Control"}
 
         dementia_files = os.listdir(path["Dementia"])
         control_files = os.listdir(path["Control"])
@@ -77,8 +77,8 @@ class Preprocess:
     def xml_to_csv():
         columns = ['file_num', 'file', 'uid', 'who', 'group', 'sex', 'age',
                    'sentence',  'language', 'education', 'label']
-        path = {"Dementia": "./dataset/xml/dementia",
-                "Control": "./dataset/xml/control"}
+        path = {"Dementia": "./dataset/Dementia",
+                "Control": "./dataset/Control"}
 
         dementia_files = os.listdir(path["Dementia"])
         control_files = os.listdir(path["Control"])
@@ -178,7 +178,7 @@ class Preprocess:
             file_num += 1
 
         # csv 저장
-        csv_filename = "./dataset/xml/corpus.csv"
+        csv_filename = "./dataset/corpus.csv"
         print("Save to \"", csv_filename, "\"")
         df.to_csv(csv_filename, sep=',', na_rep="NaN", index_label="index")
 

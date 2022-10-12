@@ -1,9 +1,5 @@
 import torch
 import torch.nn as nn
-from dataclasses import dataclass   # 구조체
-from embedding import Embedding
-from transformers import BertModel, BertConfig
-
 import random
 from torch.nn.utils.rnn import pad_sequence
 import math
@@ -14,11 +10,13 @@ import pandas as pd
 device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
 
 
-@dataclass
-class ResultStruct:
-    pred_enc = None     # int
-    pred_dec = None     # tensor
+class CNN1d(nn.Module):
+    def __init__(self):
+        super(CNN1d, self).__init__()
+        self.cnn1d = nn.Conv1d()
 
+    def forward(self, x):
+        return
 
 class SelfAttention(nn.Module):
     def __init__(self, embedding_dim, num_heads):
@@ -31,45 +29,43 @@ class SelfAttention(nn.Module):
         query = x
         key = x
         value = x
-        attn_output, attn_output_weights = self.multihead_attn(query, key, value, need_weights=True)
+        attn_output = self.multihead_attn(query, key, value, need_weights=False)
 
-        return attn_output, attn_output_weights
+        return attn_output
 
-def position_encoding():
-    return
+# class PositionalEncoding(nn.Module):
+#
+#     def __init__(self, d_model=768, vocab_size=5000, dropout=0.1, batch_size=32):
+#         super().__init__()
+#         self.dropout = nn.Dropout(p=dropout)
+#
+#         pe = torch.zeros(vocab_size, d_model)
+#         position = torch.arange(0, vocab_size, dtype=torch.float).unsqueeze(1)
+#         div_term = torch.exp(torch.arange(0, d_model, 2).float() * (-math.log(10000.0) / d_model))
+#         pe[:, 0::2] = torch.sin(position * div_term)
+#         pe[:, 1::2] = torch.cos(position * div_term)
+#         pe = pe.unsqueeze(0)
+#         self.register_buffer('pe', pe)
+#
+#     def forward(self, xs):
+#         for x in xs:
+#             x = x + self.pe[:, :x.size(1), :]
+#             return self.dropout(x)
 
-"""
-Huggingface BertModel
-
-- vocab_size = 30522
-- hidden_size = 768
-- num_hidden_layers = 12
-- num_attention_heads = 12
-- intermediate_size = 3072
-- hidden_act = 'gelu'
-- hidden_dropout_prob = 0.1
-- attention_probs_dropout_prob = 0.1
-- max_position_embeddings = 512
-- type_vocab_size = 2
-- initializer_range = 0.02
-- layer_norm_eps = 1e-12
-- pad_token_id = 0
-- position_embedding_type = 'absolute'
-- use_cache = True
-- classifier_dropout = None
-"""
 class Encoder(nn.Module):
     def __init__(self, embedding_dim):
         super(Encoder, self).__init__()
-        # self.config = BertConfig()
-        self.config = BertConfig.from_pretrained('bert-base-uncased')
-        self.encoder = BertModel(self.config)
+        # self.bert_base = BertForSequenceClassification.from_pretrained('bert-base-uncased')
+        # self.bert_base =
+        self.embedding_dim = embedding_dim
+        # self.pos_encoder = PositionalEncoding()
+        self.encoder_layer = nn.TransformerEncoderLayer(d_model=self.embedding_dim, nhead=8, batch_first=True)
+        self.encoder = nn.TransformerEncoder(encoder_layer=self.encoder_layer, num_layers=6)
+        self.feedforward = nn.Linear(self.embedding_dim, 1)
         self.sigmoid = nn.Sigmoid()
-        self.feedforward = nn.Linear()
 
     def forward(self, x):
-        input = position_encoding(x)
-        out = self.encoder(input_ids=input, attention_mask, token_type_ids, position_ids)
+        out = self.encoder(x)
         cls_out = torch.mean(out, dim=-2)
         cls_out = self.feedforward(cls_out)
         cls_out = self.sigmoid(cls_out)
@@ -80,149 +76,73 @@ class Decoder(nn.Module):
     def __init__(self, embedding_dim):
         super(Decoder, self).__init__()
         # self.bert = BertForQuestionAnswering.from_pretrained('bert-base-uncased')
-        decoder_layer = nn.TransformerDecoderLayer(d_model=512, nhead=8)
-        self.decoder = nn.TransformerDecoder(decoder_layer=decoder_layer, num_layers=6)
+        self.embedding_dim = embedding_dim
+        self.decoder_layer = nn.TransformerDecoderLayer(d_model=self.embedding_dim, nhead=8, batch_first=True)
+        self.decoder = nn.TransformerDecoder(decoder_layer=self.decoder_layer, num_layers=6)
 
     def forward(self, tgt, memory):
         out = self.decoder(tgt, memory)
 
         return out
 
-"""
-- max_token_num: 한 문장 내 최대 토큰 개수
-- max_seq_len: 입력 값으로 들어갈 문장의 최대 수 (첫번째 어탠션 네트워크 개수)
-"""
-
 class AlzhBERT(nn.Module):
-    def __init__(self, max_token, max_seq, num_heads, embedding_dim=768):
+    def __init__(self, embedding_dim):
         super(AlzhBERT, self).__init__()
         self.embedding_dim = embedding_dim
-        self.max_token = max_token
-        self.max_seq = max_seq
-        self.sec_div_flag = True               # Section을 나눌 것인지 아닌지 플래그
-        # self.pred = pred        # True면 prdiction (cls_out, decoder_out, decoder_tgt) 리턴, False면 loss 리턴
+        self.max_sent_length = 7
 
-        self.f = nn.ModuleList([SelfAttention(embedding_dim, num_heads=num_heads) for _ in range(max_seq)])     # token-level attention
-        self.g = SelfAttention(embedding_dim, num_heads=num_heads)              # sentence-level attention
+        self.token_level_attn = nn.ModuleList([SelfAttention(self.embedding_dim, num_heads=8) for _ in range(10)])
+        self.token_level_attn_single = SelfAttention(self.embedding_dim, num_heads=8)
+        self.sentence_level_attn = SelfAttention(self.embedding_dim, num_heads=8)
 
-        self.encoder = Encoder()
-        self.decoder = Decoder()
+        self.encoder = Encoder(embedding_dim=embedding_dim)
+        self.decoder = Decoder(embedding_dim=embedding_dim)
 
+    def forward(self, X_batch):
+        i = 0
 
-    def calculate_loss(self, pred, tgt):
-        loss_fn = nn.MSELoss()
-        loss = loss_fn(pred.to(torch.float32), tgt.to(torch.float32))
-        return loss
+        enc_outs = {}
+        dec_outs = {}
+        for datastruct in X_batch:
+            enc_outs[i] = []
+            dec_outs[i] = []
+            j=0
+            for section in datastruct.sections:
+                print(i, " + ", j)
+                inv = section.inv.requires_grad_(True).to(device)
+                y_dec = section.next_uttr.requires_grad_(True).to(device)
+                par = section.par
+                # print(par)
+                try:
+                    tmp = par.dim()
+                except AttributeError:
+                    print(par)
+                    print("attr err")
+                    j = j+1
+                    continue
 
-    """
-    batch: DataStruct 리스트 (배치) or Dialogue 리스트
-    Xs: DataStruct
-    X: 한 DataStruct의 한 Section
-    D: Dialogue
-    
-    labels: batch의 라벨들 (DataStruct 당 하나)
-    """
-    def forward(self, batch, labels):
-        preds_enc = []
-        preds_dec = []
+                # par = par.permute(1,0,2)                # (seq_len, sent_len, embed) => 한 번에 self attention
+                # 여러개 self_attention
+                # for p in par:
+                result = self.token_level_attn_single(par.to(device).requires_grad_(True))[0]
+                res = torch.mean(result, dim=-2).unsqueeze(0)
 
-        for D, y in (batch, labels):
-            if self.sec_div_flag:
-                for sections in D.sections:
-                    inv = sections.inv
-                    par = sections.par
-                    next_uttr = sections.next_uttr
+                res_sent = self.sentence_level_attn(res.to(device))[0]
+                context = torch.mean(res_sent, dim=-3)
 
-                    # 임베딩
-                    x_inv = Embedding.bert_embedding(inv, mode_token=True)
-                    x_par = Embedding.bert_embedding(par, mode_token=True)
-                    y_enc = y
-                    y_dec = Embedding.bert_embedding(next_uttr, mode_token=True)
+                inv_input = torch.mean(inv, dim=-2)
+                # x_enc = torch.concat((inv_input, context))
+                # x_enc = x_enc.view([1, -1, self.embedding_dim])
+                enc_out, cls_out = self.encoder(torch.concat([inv_input, context]).unsqueeze(0))
+                # y_dec = torch.mean(y_dec, dim=-2).to(device)
+                # enc_out = torch.mean(enc_out, dim=-2).unsqueeze(0).to(device)
+                dec_out = self.decoder(y_dec, enc_out.to(device))
 
-                    # token-level positional embedding
-                    outputs = []
-                    for i in range(self.max_seq_len):
-                        attn_output, attn_weights = self.token_level_attn[i](par[i])
-                        outputs.append(attn_output)
+                enc_outs[i].append(cls_out)
+                dec_outs[i].append(dec_out)
+                j = j+1
 
-                    context = torch.concat(outputs, dim=-3)
+            enc_outs[i] = torch.tensor(enc_outs[i], requires_grad=True)
+            i = i + 1
 
-                    # sentence-level positional embedding
-
-                    context = self.sentence_level_attn(context.to(device))[0]
-                    context = torch.mean(context, dim=-3).unsqueeze(0)
-                    context = torch.mean(context, dim=-2)
-
-                    # sentence embedding 추가
-
-                    out_enc, pred_enc = self.encoder(x_inv, context)
-                    pred_dec = self.decoder(out_enc)
-
-                    preds_enc.append(pred_enc)
-                    preds_dec.append(pred_dec)
-
-            elif not self.sec_div_flag:
-                idx = [i for i in range(len(D.dialogue)) if D.who[i] == 'INV']          # INV 발화 인덱스 (idx[0] = 0)
-
-                for i in range(len(idx)):
-                    if i == 0:
-                        continue                # i=0 이면 발화를 나눌 수 없기 때문에 다음 턴으로 넘어감
-                    x = D.dialogue[i-1:i]
-                    x_inv =
-                    x_inv
-
-
-
-        return preds_enc, preds_dec
-
-            # ret = []
-            # inv = input["sentence"][0].squeeze()        # all input: [seq_len, 768]
-            #     par = input["sentence"][1:]
-            #     outputs = []
-            #
-            #     if len(par) == 0: continue
-            #
-            #     for i in range(10):
-            #         try:
-            #             output = self.token_level_attn[i](par[i].unsqueeze(0).to(device))[0]
-            #         except IndexError:
-            #             t = random.randint(0, par.shape[0] - 1)
-            #             output = self.token_level_attn[i](par[t].unsqueeze(0).to(device))[0]
-            #         outputs.append(output)
-
-
-                #
-                # inv_input = torch.mean(inv, dim=-2).unsqueeze(0).to(device)
-                # # decoder_tgt = torch.mean(inv_uttr[cnt+1], dim=-2).unsqueeze(0).unsqueeze(0)
-                # decoder_tgt = inv_uttr[cnt+1].unsqueeze(0).to(device)
-                #
-                # encoder_out, cls_out = self.encoder(torch.concat([inv_input, context]).unsqueeze(0))
-                # decoder_out = self.decoder(decoder_tgt, encoder_out.to(device))
-
-        #         cls_out = cls_out.unsqueeze(0)
-        #         loss['enc'] += self.calculate_loss(cls_out, cls_label)
-        #         loss['dec'] += self.calculate_loss(decoder_out, decoder_tgt)
-        #         sample_num += 1
-        #
-        #         cls_pred = 1 if cls_out >= 0.5 else 0
-        #
-        #         if valid:
-        #             if cls_pred == cls_label:
-        #                 accuracy += 1
-        #
-        # if valid:
-        #     accuracy = accuracy/float(sample_num)
-        #     return loss['enc'], loss['dec'], accuracy, sample_num
-        # else:
-        #     return loss['enc'], loss['dec'], sample_num
-
-
-
-
-
-
-
-
-
-
-
+        return enc_outs, dec_outs

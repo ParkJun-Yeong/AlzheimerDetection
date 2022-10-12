@@ -48,7 +48,7 @@ class DementiaDataset(Dataset):
     def __init__(self, is_tr=False, is_ts=False):
         super(DementiaDataset, self).__init__()
 
-        if not is_tr & is_ts:
+        if (not is_tr) & (not is_ts):
             print("!!!!!!!!!! Select is_tr or is_ts !!!!!!!!!!")
             exit()
 
@@ -57,24 +57,37 @@ class DementiaDataset(Dataset):
 
 
         self.base_path = './dataset'
-        self.corpus = pd.read_csv(os.path.join(self.base_path, "corpus.csv"))
-        self.corpus = Preprocess.fill_inv(self.corpus).drop(['index'], 1)         # index 항 제거 (pandas method로 해결 가능)
 
+        """
+        직접 임베딩
+        """
+        # self.corpus = pd.read_csv(os.path.join(self.base_path, "corpus.csv"))
+        # self.corpus = Preprocess.fill_inv(self.corpus).drop(['index'], 1)         # index 항 제거 (pandas method로 해결 가능)
+
+        """
+        임베딩 불러와서
+        """
+        with open(os.path.join(self.base_path, "corpus_dict.pkl"), 'rb') as f:
+            self.corpus = pickle.load(f)
+
+        self.corpus = Preprocess.fill_inv_from_dict(self.corpus)
         self.dataset = []
 
         # # Section 분리
         # self.get_struct()
+        self.get_struct_from_dict()
 
         # Section 비분리
-        self.get_dialogue()
+        # self.get_dialogue()
 
-        len_true = len(self.corpus.loc[self.corpus['label'] == 1]['file_num'].unique())         # 309
-        len_false = len(self.corpus.loc[self.corpus['label'] == 0]['file_num'].unique())
+        # len_true = len(self.corpus.loc[self.corpus['label'] == 1]['file_num'].unique())         # 309
+        # len_false = len(self.corpus.loc[self.corpus['label'] == 0]['file_num'].unique())
 
-        self.label = [1] * len_true + [0] * len_false
 
+        # self.label = [1] * len_true + [0] * len_false
+
+        self.label = [1] * 309 + [0] * 243
         self.x_train, self.x_test, self.y_train, self.y_test = self.split_dataset()
-        print()
 
     def __len__(self):
         if self.is_tr:
@@ -99,7 +112,8 @@ class DementiaDataset(Dataset):
             try:  # 마지막이 inv로 끝날 경우 sec에 utter가 남아있음. 초기화 해주기
                 del sec
             except UnboundLocalError:
-                print("let's start to make structure **^^**")
+                pass
+                # print("let's start to make structure **^^**")
 
             file = self.corpus.loc[self.corpus['file_num'] == i, :]  # 동일 파일 행만 추출
 
@@ -112,7 +126,8 @@ class DementiaDataset(Dataset):
                         struct.sections.append(sec)
                         # sec.par = []
                     except UnboundLocalError:
-                        print()
+                        pass
+                        # print("no section: ", i, j)
                         # print("no section")
                     sec = Section()  # 새로운 세션 생성
                     sec.inv = uttr
@@ -120,7 +135,42 @@ class DementiaDataset(Dataset):
                 if file.iloc[j]['who'] == 'PAR':
                     sec.par.append(uttr)
             self.dataset.append(struct)
-    
+            
+    def get_struct_from_dict(self):
+        for i in trange(552):
+            struct = DataStruct()
+
+            try:  # 마지막이 inv로 끝날 경우 sec에 utter가 남아있음. 초기화 해주기
+                del sec
+            except UnboundLocalError:
+                pass
+                # print("let's start to make structure **^^**")
+
+            file = self.corpus[i]  # 동일 파일만 추출
+
+            for j in range(len(file['who'])):
+                uttr = file['sentence'][j].unsqueeze(0)
+                # print(i, j)
+                if file['who'][j] == 'INV':
+                    try:
+                        sec.next_uttr = uttr
+                        struct.sections.append(sec)
+                        # sec.par = []
+                    except UnboundLocalError:
+                        pass
+                        # print("no section: ", i, j)
+                        # print("no section")
+                    sec = Section()  # 새로운 세션 생성
+                    sec.inv = uttr
+
+                if file['who'][j] == 'PAR':
+                    if len(sec.par) == 0:
+                        sec.par = uttr
+                    else:
+                        torch.concat((sec.par, uttr))
+            self.dataset.append(struct)
+
+        print("STRUCTURING COMPLETE")
     """
     같은 파일의 발화(sentence)와 발화자(who)를 빼서 Dialogue 구조체로 정리하는 메소드
     Section으로 분리하지 않을 경우만 사용

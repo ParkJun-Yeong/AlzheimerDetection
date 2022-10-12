@@ -5,7 +5,7 @@ from torch.utils.tensorboard import SummaryWriter
 
 import os
 from datetime import datetime
-from tqdm import tqdm
+from tqdm import tqdm, trange
 
 from preprocess import Preprocess
 from dataset import DementiaDataset, collate_fn
@@ -20,7 +20,6 @@ def train_loop(dataloader, model, loss_fn, optimizer, epochs):
     train_dataloader = dataloader["train"]
     valid_dataloader = dataloader["valid"]
 
-    batch_size = 32
     size = len(train_dataloader.dataset)
     writer = SummaryWriter()
 
@@ -28,16 +27,16 @@ def train_loop(dataloader, model, loss_fn, optimizer, epochs):
     # train_loss_history = []
     # valid_loss_history = []
 
-    for epoch in range(epochs):
+    for epoch in trange(epochs):
         print("======== epoch ", epoch, "==========\n")
 
-        for i, (X, y) in tqdm(enumerate(train_dataloader), desc="Train..."):
+        for i, (X, y) in enumerate(train_dataloader):
             model.train()
 
-            print("<Check Data>")
-            print("X[0] who: ", X[0]["who"][:5])
-            print("X[1] who: ", X[1]["who"][:5])
-            print()
+            # print("<Check Data>")
+            # print("X[0] who: ", X[0]["who"][:5])
+            # print("X[1] who: ", X[1]["who"][:5])
+            # print()
 
             # Prediction and Loss
             y = torch.tensor(y, dtype=int)
@@ -73,7 +72,14 @@ def train_loop(dataloader, model, loss_fn, optimizer, epochs):
                     saved_model_dir = "./saved_model"
                 # saved_model_dir = "./saved_model"
                 now = datetime.now()
-                torch.save(model.state_dict(), os.path.join(saved_model_dir, "saved_model" + now.strftime("%Y-%m-%d-%H-%M") + ".pt"))
+                torch.save({
+                    'epoch': epoch,
+                    'model_state_dict': model.state_dict(),
+                    'optimizer_state_dict': optimizer.state_dict(),
+                    'loss': [enc_loss, dec_loss],
+                }, os.path.join('/home/juny/AlzheimerModel/checkpoint', now.strftime("%Y-%m-%d-%H-%M") + "-e" + str(epoch) + ".pt"))
+
+                # torch.save(model.state_dict(), os.path.join(saved_model_dir, "saved_model" + now.strftime("%Y-%m-%d-%H-%M") + ".pt"))
                 encloss, decloss, current = mean_enc_train.item(), mean_dec_train.item(), i * len(X)
                 print(f"enc loss: {encloss:>7f} dec loss: {decloss:>7f} [{current:>5d}/{size:>5d}")
 
@@ -94,6 +100,7 @@ def train_loop(dataloader, model, loss_fn, optimizer, epochs):
 
 
 def validation_loop(dataloader, model, loss_fn, epoch):
+    print("Validation Loop")
     writer = SummaryWriter()
     model.eval()
     enc_loss_sum = 0
@@ -155,7 +162,7 @@ if __name__ == "__main__":
 
     learning_rate = 1e-3
     batch_size = 64        # 임의 지정. 바꾸기.
-    epochs = 70
+    epochs = 100
     dropout_rate = 0.1      # 논문 언급 없음.
     weight_decay = 2e-5
     max_seq_length = 30    # 논문 언급 없음.
