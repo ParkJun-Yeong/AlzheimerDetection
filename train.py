@@ -180,6 +180,7 @@ def cross_validation_loop(X_fold, y_fold, model, loss_fn, epoch):
             dec_loss_hist.append(dec_loss.item())
 
             cls_out = [1 if enc >= 0.5 else 0 for enc in enc_preds]
+    print("========== [[validation ends]] ===========")
 
     return enc_loss, dec_loss, cls_out
 
