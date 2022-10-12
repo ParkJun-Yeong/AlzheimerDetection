@@ -60,6 +60,7 @@ class Encoder(nn.Module):
         self.embedding_dim = embedding_dim
         # self.pos_encoder = PositionalEncoding()
         self.encoder_layer = nn.TransformerEncoderLayer(d_model=self.embedding_dim, nhead=8, batch_first=True)
+        # self.layernorm = nn.LayerNorm(normalized_shape=[1,embedding_dim])
         self.encoder = nn.TransformerEncoder(encoder_layer=self.encoder_layer, num_layers=6)
         self.feedforward = nn.Linear(self.embedding_dim, 1)
         self.sigmoid = nn.Sigmoid()
@@ -77,6 +78,8 @@ class Decoder(nn.Module):
         super(Decoder, self).__init__()
         # self.bert = BertForQuestionAnswering.from_pretrained('bert-base-uncased')
         self.embedding_dim = embedding_dim
+        # self.layernorm = nn.LayerNorm(normalized_shape=[embedding_dim])
+
         self.decoder_layer = nn.TransformerDecoderLayer(d_model=self.embedding_dim, nhead=8, batch_first=True)
         self.decoder = nn.TransformerDecoder(decoder_layer=self.decoder_layer, num_layers=6)
 
@@ -91,40 +94,38 @@ class AlzhBERT(nn.Module):
         self.embedding_dim = embedding_dim
         self.max_sent_length = 7
 
-        self.token_level_attn = nn.ModuleList([SelfAttention(self.embedding_dim, num_heads=8) for _ in range(10)])
-        self.token_level_attn_single = SelfAttention(self.embedding_dim, num_heads=8)
-        self.sentence_level_attn = SelfAttention(self.embedding_dim, num_heads=8)
+        self.token_level_attn = nn.ModuleList([SelfAttention(self.embedding_dim, num_heads=8) for _ in range(10)]).requires_grad_(True)
+        self.token_level_attn_single = SelfAttention(self.embedding_dim, num_heads=8).requires_grad_(True)
+        self.sentence_level_attn = SelfAttention(self.embedding_dim, num_heads=8).requires_grad_(True)
 
-        self.encoder = Encoder(embedding_dim=embedding_dim)
-        self.decoder = Decoder(embedding_dim=embedding_dim)
+        self.encoder = Encoder(embedding_dim=embedding_dim).requires_grad_(True)
+        self.decoder = Decoder(embedding_dim=embedding_dim).requires_grad_(True)
 
     def forward(self, X_batch):
         i = 0
 
-        enc_outs = {}
-        dec_outs = {}
-        for datastruct in X_batch:
-            enc_outs[i] = []
-            dec_outs[i] = []
+        enc_outs = []
+        dec_outs = []
+        for datastruct in tqdm(X_batch):
             j=0
             for section in datastruct.sections:
-                print(i, " + ", j)
-                inv = section.inv.requires_grad_(True).to(device)
-                y_dec = section.next_uttr.requires_grad_(True).to(device)
+                # print(i, " + ", j)
+                inv = section.inv.to(device)
+                y_dec = section.next_uttr.to(device)
                 par = section.par
                 # print(par)
                 try:
                     tmp = par.dim()
                 except AttributeError:
-                    print(par)
-                    print("attr err")
+                    # print(par)
+                    # print("attr err")
                     j = j+1
                     continue
 
                 # par = par.permute(1,0,2)                # (seq_len, sent_len, embed) => 한 번에 self attention
                 # 여러개 self_attention
                 # for p in par:
-                result = self.token_level_attn_single(par.to(device).requires_grad_(True))[0]
+                result = self.token_level_attn_single(par.to(device))[0]
                 res = torch.mean(result, dim=-2).unsqueeze(0)
 
                 res_sent = self.sentence_level_attn(res.to(device))[0]
@@ -133,16 +134,15 @@ class AlzhBERT(nn.Module):
                 inv_input = torch.mean(inv, dim=-2)
                 # x_enc = torch.concat((inv_input, context))
                 # x_enc = x_enc.view([1, -1, self.embedding_dim])
-                enc_out, cls_out = self.encoder(torch.concat([inv_input, context]).unsqueeze(0))
+
+                enc_out, cls_out = self.encoder(torch.cat([inv_input, context]).unsqueeze(0))
+                # enc_out, cls_out = self.encoder(x_enc)
                 # y_dec = torch.mean(y_dec, dim=-2).to(device)
                 # enc_out = torch.mean(enc_out, dim=-2).unsqueeze(0).to(device)
                 dec_out = self.decoder(y_dec, enc_out.to(device))
 
-                enc_outs[i].append(cls_out)
-                dec_outs[i].append(dec_out)
-                j = j+1
-
-            enc_outs[i] = torch.tensor(enc_outs[i], requires_grad=True)
-            i = i + 1
+                cls_out = torch.mean(cls_out)
+                enc_outs.append(cls_out)
+                dec_outs.append(dec_out)
 
         return enc_outs, dec_outs

@@ -1,23 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="4cd0ffeb-81ee-4a86-a7bd-fcb1a202b408" name="Default Changelist" comment="220810: position_embed, decoder 수정">
-      <change afterPath="$PROJECT_DIR$/(deprecated)AlzhBERT.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/utils.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/Chatbot.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/Chatbot.iml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/deployment.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/deployment.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/vcs.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/vcs.xml" afterDir="false" />
+    <list default="true" id="4cd0ffeb-81ee-4a86-a7bd-fcb1a202b408" name="Default Changelist" comment="221011~12">
+      <change beforePath="$PROJECT_DIR$/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/2022ksci/AlzhBERT.py" beforeDir="false" afterPath="$PROJECT_DIR$/2022ksci/AlzhBERT.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/2022ksci/dataset.py" beforeDir="false" afterPath="$PROJECT_DIR$/2022ksci/dataset.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/2022ksci/preprocess.py" beforeDir="false" afterPath="$PROJECT_DIR$/2022ksci/preprocess.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/2022ksci/train_AlzhBERT.py" beforeDir="false" afterPath="$PROJECT_DIR$/2022ksci/train_AlzhBERT.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/AlzhBERT.py" beforeDir="false" afterPath="$PROJECT_DIR$/AlzhBERT.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/dataset.py" beforeDir="false" afterPath="$PROJECT_DIR$/dataset.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/embedding.py" beforeDir="false" afterPath="$PROJECT_DIR$/embedding.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/preprocess.py" beforeDir="false" afterPath="$PROJECT_DIR$/preprocess.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/train.py" beforeDir="false" afterPath="$PROJECT_DIR$/train.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/utils.py" beforeDir="false" afterPath="$PROJECT_DIR$/utils.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -72,20 +62,20 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent"><![CDATA[{
-  "keyToString": {
-    "RunOnceActivity.OpenProjectViewOnStart": "true",
-    "RunOnceActivity.ShowReadmeOnStart": "true",
-    "WebServerToolWindowFactoryState": "false",
-    "WebServerToolWindowPanel.toolwindow.highlight.mappings": "true",
-    "WebServerToolWindowPanel.toolwindow.highlight.symlinks": "true",
-    "WebServerToolWindowPanel.toolwindow.show.date": "false",
-    "WebServerToolWindowPanel.toolwindow.show.permissions": "false",
-    "WebServerToolWindowPanel.toolwindow.show.size": "false",
-    "last_opened_file_path": "C:/Users/mlpa/PycharmProjects/Chatbot/2022ksci/train_AlzhBERT.py",
-    "settings.editor.selected.configurable": "com.jetbrains.python.configuration.PyActiveSdkModuleConfigurable"
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;RunOnceActivity.OpenProjectViewOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;WebServerToolWindowFactoryState&quot;: &quot;false&quot;,
+    &quot;WebServerToolWindowPanel.toolwindow.highlight.mappings&quot;: &quot;true&quot;,
+    &quot;WebServerToolWindowPanel.toolwindow.highlight.symlinks&quot;: &quot;true&quot;,
+    &quot;WebServerToolWindowPanel.toolwindow.show.date&quot;: &quot;false&quot;,
+    &quot;WebServerToolWindowPanel.toolwindow.show.permissions&quot;: &quot;false&quot;,
+    &quot;WebServerToolWindowPanel.toolwindow.show.size&quot;: &quot;false&quot;,
+    &quot;last_opened_file_path&quot;: &quot;C:/Users/mlpa/PycharmProjects/Chatbot/2022ksci/train_AlzhBERT.py&quot;,
+    &quot;settings.editor.selected.configurable&quot;: &quot;com.jetbrains.python.configuration.PyActiveSdkModuleConfigurable&quot;
   }
-}]]></component>
+}</component>
   <component name="PyConsoleOptionsProvider">
     <option name="myPythonConsoleState">
       <console-settings>
@@ -337,7 +327,8 @@
       <workItem from="1660194840045" duration="595000" />
       <workItem from="1663651248765" duration="9242000" />
       <workItem from="1664351051568" duration="17000" />
-      <workItem from="1665124573319" duration="81709000" />
+      <workItem from="1665124573319" duration="83846000" />
+      <workItem from="1665571625114" duration="16679000" />
     </task>
     <task id="LOCAL-00001" summary="Initial Commit">
       <created>1644142023959</created>
@@ -556,7 +547,14 @@
       <option name="project" value="LOCAL" />
       <updated>1660121249175</updated>
     </task>
-    <option name="localTasksCounter" value="32" />
+    <task id="LOCAL-00032" summary="221011~12">
+      <created>1665558294313</created>
+      <option name="number" value="00032" />
+      <option name="presentableId" value="LOCAL-00032" />
+      <option name="project" value="LOCAL" />
+      <updated>1665558294313</updated>
+    </task>
+    <option name="localTasksCounter" value="33" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -609,7 +607,6 @@
     <ignored-roots>
       <path value="$PROJECT_DIR$/AlzheimerDetection" />
     </ignored-roots>
-    <MESSAGE value="2022.05.25.Preprocess,Embedding 코드 작성&#10;(nltk, berttokenizer 등)" />
     <MESSAGE value="여러가지 수정" />
     <MESSAGE value="1. bert_embedding batch 버전으로 수정 (O)&#10;2. preprocess, dataset 수정 (O)&#10;3. embedding='bert'에 따라 달라지는 코드 수정 (O)&#10;4. dataset 코드 corpus에 맞게 수정 (O)&#10;5. dataset에 train_test_split 메소드 추가 (O)&#10;5. bert_tokenize static 메소드로 변경 (O)&#10;6. corpus to_csv에서 라벨 이름 지정 (O)&#10;7. corpus data column -&gt; data_path column (O)" />
     <MESSAGE value="1. bert_embedding batch 버전으로 수정 (O)&#10;2. preprocess, dataset 수정 (O)&#10;3. embedding='bert'에 따라 달라지는 코드 수정 (O)&#10;4. dataset 코드 corpus에 맞게 수정 (O)&#10;5. dataset에 train_test_split 메소드 추가 (O)&#10;5. bert_tokenize static 메소드로 변경 (O)&#10;6. corpus to_csv에서 라벨 이름 지정 (O)&#10;7. corpus data column -&gt; data_path column (O)&#10;8. train 코드 작성 (O)" />
@@ -634,7 +631,8 @@
     <MESSAGE value="220713: AlzhBERT, Embedding 수정" />
     <MESSAGE value="220713: Embedding 수정" />
     <MESSAGE value="220810: position_embed, decoder 수정" />
-    <option name="LAST_COMMIT_MESSAGE" value="220810: position_embed, decoder 수정" />
+    <MESSAGE value="221011~12" />
+    <option name="LAST_COMMIT_MESSAGE" value="221011~12" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
@@ -654,16 +652,6 @@
           <line>64</line>
           <option name="timeStamp" value="135" />
         </line-breakpoint>
-        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
-          <url>file://$USER_HOME$/anaconda3/envs/pytorch-python3.8/Lib/site-packages/torch/_tensor.py</url>
-          <line>395</line>
-          <option name="timeStamp" value="158" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
-          <url>file://$PROJECT_DIR$/AlzhBERT.py</url>
-          <line>138</line>
-          <option name="timeStamp" value="159" />
-        </line-breakpoint>
       </breakpoints>
       <default-breakpoints>
         <breakpoint type="python-exception">
@@ -673,6 +661,11 @@
         </breakpoint>
       </default-breakpoints>
     </breakpoint-manager>
+    <watches-manager>
+      <configuration name="PythonConfigurationType">
+        <watch expression="dec_outs[0]" />
+      </configuration>
+    </watches-manager>
   </component>
   <component name="com.intellij.coverage.CoverageDataManagerImpl">
     <SUITE FILE_PATH="coverage/Chatbot$dataset.coverage" NAME="dataset Coverage Results" MODIFIED="1657084266473" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
@@ -686,6 +679,6 @@
     <SUITE FILE_PATH="coverage/Chatbot$_KSCI_train_AlzhBERT.coverage" NAME="(KSCI)train_AlzhBERT Coverage Results" MODIFIED="1665555143429" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/2022ksci" />
     <SUITE FILE_PATH="coverage/Chatbot$Unnamed.coverage" NAME="model Coverage Results" MODIFIED="1653306923273" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
     <SUITE FILE_PATH="coverage/AlzheimerDetection$chatbot_demo.coverage" NAME="chatbot_demo Coverage Results" MODIFIED="1656845710935" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/demo" />
-    <SUITE FILE_PATH="coverage/Chatbot$train.coverage" NAME="train Coverage Results" MODIFIED="1665556072264" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
+    <SUITE FILE_PATH="coverage/Chatbot$train.coverage" NAME="train Coverage Results" MODIFIED="1665590112638" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
   </component>
 </project>

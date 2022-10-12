@@ -11,27 +11,29 @@ from preprocess import Preprocess
 from dataset import DementiaDataset, collate_fn
 from embedding import Embedding
 from AlzhBERT import AlzhBERT
-from utils import batch_to_tensor
+from utils import get_y_dec_list, get_y_enc_list
 
 device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
 print("device: ", device)
-torch.autograd.set_detect_adnomaly(True)
+torch.autograd.set_detect_anomaly(True)
 
 def train_loop(dataloader, model, loss_fn, optimizer, epochs):
     # dataloader = dataloader["train"]
     size = len(dataloader.dataset)
     writer = SummaryWriter()
-    enc_optimizer = optimizer[0]
-    dec_optimizer = optimizer[1]
 
     for epoch in range(epochs):
         enc_loss_hist = []
         dec_loss_hist = []
         accuracy = []
 
+        valid_enc_hist = []
+        valid_dec_hist = []
+        valid_accuracy = []
+
         print("======== epoch ", epoch, "==========\n")
         for i, (Xs, ys) in tqdm(enumerate(dataloader), desc="Train..."):
-            X_folds,  y_folds = cross_validation(10, Xs, ys)
+            X_folds,  y_folds = cross_validation(2, Xs, ys)
             model.train()
 
             for X, y in zip(X_folds['train'], y_folds['train']):                    # Xf는 DataStruct의 리스트임
@@ -43,41 +45,80 @@ def train_loop(dataloader, model, loss_fn, optimizer, epochs):
                 # X = batch_to_tensor(X)
                 # X = torch.tensor(X).to(device)
                 y = torch.tensor(y, dtype=torch.float32).to(device)
+                y_dec = get_y_dec_list(X)
+                y_enc = get_y_enc_list(X, y)
+                # y_dec = torch.tensor(y_dec, requires_grad=True)
+                y_enc = torch.tensor(y_enc, requires_grad=True)
+
 
                 enc_preds, dec_preds = model(X)
 
-                for k in range(len(X)):
-                    for t in range(len(enc_preds[k])):
-                        enc_loss = loss_fn(y[k].to(device), enc_preds[k][t].to(device)).requires_grad_(True)
-                        dec_loss = loss_fn(X[k].sections[t].next_uttr.to(device), dec_preds[k][t].to(device)).requires_grad_(True)
+                # for i in range(len(dec_preds)):
+                #     y_dec = X[1].sections[i].next_uttr.to(device)
+                #     dec_pred = dec_preds[i].to(device)
+                #     dec_loss = loss_fn(y_dec, dec_pred.requires_grad_(True))
+                #
+                #     try:
+                #         dec_optimizer.zero_grad()
+                #         dec_loss.backward()
+                #         dec_optimizer.step()
+                #     except RuntimeError:
+                #         print(i, " 번째 iteration of X[1]")
+                #         continue
 
-                        cls_out = torch.tensor(1 if enc_preds[k][t] >= 0.5 else 0)
-                        cls_loss = torch.sum(cls_out == y[k])
-                        accuracy.append(cls_loss)
+                enc_preds = torch.stack(enc_preds)
+                # dec_preds = torch.stack(dec_preds)
+
+                enc_loss = loss_fn(y_enc, enc_preds)
+
+                dec_losses = []
+                for i in range(len(dec_preds)):
+                    dec_losses.append(loss_fn(y_dec[i], dec_preds[i]))
+
+                dec_losses = torch.stack(dec_losses)
+                dec_loss = torch.mean(dec_losses)
+
+                cls_out = [1 if enc >= 0.5 else 0 for enc in enc_preds]
+                accuracy.extend(cls_out)
 
 
-                        # Backpropagation
-                        enc_optimizer.zero_grad()
-                        dec_optimizer.zero_grad()
+                # Backpropagation
+                # enc_optimizer.zero_grad()
+                # enc_loss = torch.mean(enc_losses)
+                # dec_loss = torch.mean(dec_losses)
 
-                        enc_loss.backward(retain_graph=True)
-                        enc_optimizer.step()
+                # dec_optimizer.zero_grad()
+                optimizer.zero_grad()
+                enc_loss.backward(retain_graph=True)
+                dec_loss.backward()
+                optimizer.step()
 
-                        dec_loss.backward()
-                        dec_optimizer.step()
+                # dec_loss.backward()
+                # dec_optimizer.step()
 
-                        enc_loss_hist.append(enc_loss)
-                        dec_loss_hist.append(dec_loss)
+                enc_loss_hist.append(enc_loss.item())
+                dec_loss_hist.append(dec_loss.item())
 
-                cross_validation_loop(X_folds["valid"], y_folds["valid"], model, loss_fn, epoch)
+                enc_valid, dec_valid, acc_valid = cross_validation_loop(X_folds["valid"], y_folds["valid"], model, loss_fn, epoch)
+                valid_enc_hist.append(enc_valid)
+                valid_dec_hist.append(dec_valid)
+                valid_accuracy.extend(acc_valid)
 
         enc_loss_save = torch.mean(torch.tensor(enc_loss_hist))
         dec_loss_save = torch.mean(torch.tensor(dec_loss_hist))
         accuracy_save = torch.mean(torch.tensor(accuracy, dtype=torch.float32))
 
+        valid_enc_save = torch.mean(torch.tensor(valid_enc_hist))
+        valid_dec_save = torch.mean(torch.tensor(valid_dec_hist))
+        valid_acc_save = torch.mean(torch.tensor(valid_accuracy, dtype=torch.float32))
+
         writer.add_scalar("Avg Enc Loss/train", enc_loss_save, epoch)
         writer.add_scalar("Avg Dec Loss/train", dec_loss_save, epoch)
         writer.add_scalar("Avg Accuracy/train", accuracy_save)
+
+        writer.add_scalar("Avg Enc Loss/valid", valid_enc_save, epoch)
+        writer.add_scalar("Avg Enc Loss/valid", valid_dec_save, epoch)
+        writer.add_scalar("Avg Enc Loss/valid", valid_acc_save, epoch)
 
 
         if device == "cuda":
@@ -89,14 +130,16 @@ def train_loop(dataloader, model, loss_fn, optimizer, epochs):
         torch.save({
             'epoch': epoch,
             'model_state_dict': model.state_dict(),
-            'optimizer_state_dict': enc_optimizer.state_dict(),
+            'optimizer_state_dict': optimizer.state_dict(),
             'loss': [enc_loss_save, dec_loss_save],
-        }, os.path.join('/home/juny/AlzheimerModel/checkpoint',
+        }, os.path.join(saved_model_dir,
                         now.strftime("%Y-%m-%d-%H-%M") + "-e" + str(epoch) + ".pt"))
 
-        torch.save(model.state_dict(), os.path.join(saved_model_dir, "saved_model" + now.strftime("%Y-%m-%d-%H-%M") + ".pt"))
-        encloss, decloss, current = enc_loss_save, dec_loss_save.item(), i * len(X)
+        # torch.save(model.state_dict(), os.path.join(saved_model_dir, "saved_model" + now.strftime("%Y-%m-%d-%H-%M") + ".pt"))
+        encloss, decloss, current = enc_loss_save, dec_loss_save, i * len(X)
         print(f"enc loss: {encloss:>7f} dec loss: {decloss:>7f} [{current:>5d}/{size:>5d}")
+        encloss, decloss, current = valid_enc_save, valid_dec_save, i * len(X)
+        print(f"valid enc loss: {encloss:>7f} valid dec loss: {decloss:>7f} [{current:>5d}/{size:>5d}")
 
     writer.flush()
     writer.close()
@@ -111,30 +154,31 @@ def cross_validation_loop(X_fold, y_fold, model, loss_fn, epoch):
 
     with torch.no_grad():
         for X, y in tqdm(zip(X_fold, y_fold), desc="[[validation loop...]]"):
+
             y = torch.tensor(y, dtype=torch.float32).to(device)
+            y_enc = get_y_enc_list(X, y)
+            y_dec = get_y_dec_list(X)
+
             enc_preds, dec_preds = model(X)
 
-            for k in range(len(X)):
-                for t in range(len(enc_preds[k])):
-                    enc_loss = loss_fn(y[k].to(torch.float32), enc_preds[k][t].to(torch.float32))
-                    dec_loss = loss_fn(X[k].sections[t].next_uttr.to(torch.float32), dec_preds[k][t].to(torch.float32))
-                    enc_loss_hist.append(enc_loss)
-                    dec_loss_hist.append(dec_loss)
+            y_enc = torch.tensor(y_enc, device=device)
+            enc_preds = torch.stack(enc_preds)
+            enc_loss = loss_fn(y_enc, enc_preds)
 
-                    cls_out = torch.tensor(1 if enc_preds[k][t] >= 0.5 else 0)
-                    cls_loss = torch.sum(cls_out == y[k])
-                    accuracy.append(cls_loss)
+            dec_losses = []
+            for i in range(len(y_dec)):
+                loss = loss_fn(y_dec[i], dec_preds[i])
+                dec_losses.append(loss)
 
-        enc_loss_save = torch.mean(torch.tensor(enc_loss_hist))
-        dec_loss_save = torch.mean(torch.tensor(dec_loss_hist))
-        accuracy_save = torch.mean(torch.tensor(accuracy, dtype=torch.float32))
+            dec_losses = torch.stack(dec_losses)
+            dec_loss = torch.mean(dec_losses)
 
-        writer.add_scalar("Avg Enc Loss/Valid", enc_loss_save, epoch)
-        writer.add_scalar("Avg Dec Loss/Valid", dec_loss_save, epoch)
-        writer.add_scalar("Avg Accuracy/Valid", accuracy_save)
-        writer.flush()
+            enc_loss_hist.append(enc_loss.item())
+            dec_loss_hist.append(dec_loss.item())
 
-    return
+            cls_out = [1 if enc >= 0.5 else 0 for enc in enc_preds]
+
+    return enc_loss, dec_loss, cls_out
 
 
 def validation_loop(dataloader, model, loss_fn, epoch):
@@ -219,7 +263,7 @@ if __name__ == "__main__":
     embedding = 'bert'  # choose: bert, word2vec, glove, torch
 
     learning_rate = 1e-3
-    batch_size = 3        # 임의 지정. 바꾸기.
+    batch_size = 11        # 임의 지정. 바꾸기.
     epochs = 100
     dropout_rate = 0.1      # 논문 언급 없음.
     weight_decay = 2e-5
@@ -249,8 +293,7 @@ if __name__ == "__main__":
 
     model = AlzhBERT(embedding_dim=embedding_size).to(device)
     loss_fn = nn.MSELoss()
-    enc_optimizer = torch.optim.Adam(model.parameters(), lr=learning_rate, weight_decay=weight_decay)
-    dec_optimizer = torch.optim.Adam(model.parameters(), lr=learning_rate, weight_decay=weight_decay)
+    optimizer = torch.optim.Adam(model.parameters(), lr=learning_rate, weight_decay=weight_decay)
 
 
     # train_feature, train_labels = next(iter(train_dataloader))
@@ -260,7 +303,7 @@ if __name__ == "__main__":
     print("========================[[Train]]========================\n")
     print()
 
-    train_loop(dataloader=train_dataloader, model=model, loss_fn=loss_fn, optimizer=(enc_optimizer, dec_optimizer), epochs=epochs)
+    train_loop(dataloader=train_dataloader, model=model, loss_fn=loss_fn, optimizer=optimizer, epochs=epochs)
 
     # print("========================[[Validation]]========================")
     # print()

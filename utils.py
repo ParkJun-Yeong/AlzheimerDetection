@@ -50,3 +50,30 @@ def batch_to_tensor(batch):
         next_tensor.append(nexts_datastruct)
 
     return inv_tensor, par_tensor, next_tensor
+
+
+def get_y_enc_list(datastruct_list, y):
+    y_enc = []
+
+    for i, datastruct in enumerate(datastruct_list):
+        for section in datastruct.sections:
+            if len(section.par) == 0:
+                continue
+            y_enc.append(y[i])
+
+    return y_enc
+
+"""
+DataStruct list -> next_uttr 추출, 단 par이 없는 경우는 제외 -> y_dec 생성
+"""
+def get_y_dec_list(datastruct_list):
+    y_dec = []
+
+    for datastruct in datastruct_list:
+        for section in datastruct.sections:
+            if len(section.par) == 0:
+                continue
+
+            y_dec.append(section.next_uttr)
+
+    return y_dec

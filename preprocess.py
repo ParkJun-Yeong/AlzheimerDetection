@@ -9,6 +9,7 @@ import nltk
 from nltk.tokenize import word_tokenize
 # from transformers import BertTokenizer
 from pytorch_pretrained_bert import BertTokenizer
+from torchviz import make_dot
 
 nltk.download('punkt')
 
