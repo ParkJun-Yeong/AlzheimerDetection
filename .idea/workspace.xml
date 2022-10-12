@@ -1,13 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="4cd0ffeb-81ee-4a86-a7bd-fcb1a202b408" name="Default Changelist" comment="221011~12">
-      <change beforePath="$PROJECT_DIR$/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
+    <list default="true" id="4cd0ffeb-81ee-4a86-a7bd-fcb1a202b408" name="Default Changelist" comment="221011~12: 동작 확인">
+      <change beforePath="$PROJECT_DIR$/.idea/Chatbot.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/Chatbot.iml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/deployment.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/deployment.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/AlzhBERT.py" beforeDir="false" afterPath="$PROJECT_DIR$/AlzhBERT.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/preprocess.py" beforeDir="false" afterPath="$PROJECT_DIR$/preprocess.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/train.py" beforeDir="false" afterPath="$PROJECT_DIR$/train.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/utils.py" beforeDir="false" afterPath="$PROJECT_DIR$/utils.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -57,25 +56,28 @@
     <option name="selectedIndex" value="1" />
   </component>
   <component name="ProjectId" id="24inT1oCvqGqdH0GdnbPZj3Mg3b" />
-  <component name="ProjectLevelVcsManager" settingsEditedManually="true" />
+  <component name="ProjectLevelVcsManager" settingsEditedManually="true">
+    <ConfirmationsSetting value="2" id="Add" />
+  </component>
   <component name="ProjectViewState">
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent">{
-  &quot;keyToString&quot;: {
-    &quot;RunOnceActivity.OpenProjectViewOnStart&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
-    &quot;WebServerToolWindowFactoryState&quot;: &quot;false&quot;,
-    &quot;WebServerToolWindowPanel.toolwindow.highlight.mappings&quot;: &quot;true&quot;,
-    &quot;WebServerToolWindowPanel.toolwindow.highlight.symlinks&quot;: &quot;true&quot;,
-    &quot;WebServerToolWindowPanel.toolwindow.show.date&quot;: &quot;false&quot;,
-    &quot;WebServerToolWindowPanel.toolwindow.show.permissions&quot;: &quot;false&quot;,
-    &quot;WebServerToolWindowPanel.toolwindow.show.size&quot;: &quot;false&quot;,
-    &quot;last_opened_file_path&quot;: &quot;C:/Users/mlpa/PycharmProjects/Chatbot/2022ksci/train_AlzhBERT.py&quot;,
-    &quot;settings.editor.selected.configurable&quot;: &quot;com.jetbrains.python.configuration.PyActiveSdkModuleConfigurable&quot;
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "ASKED_ADD_EXTERNAL_FILES": "true",
+    "RunOnceActivity.OpenProjectViewOnStart": "true",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "WebServerToolWindowFactoryState": "true",
+    "WebServerToolWindowPanel.toolwindow.highlight.mappings": "true",
+    "WebServerToolWindowPanel.toolwindow.highlight.symlinks": "true",
+    "WebServerToolWindowPanel.toolwindow.show.date": "false",
+    "WebServerToolWindowPanel.toolwindow.show.permissions": "false",
+    "WebServerToolWindowPanel.toolwindow.show.size": "false",
+    "last_opened_file_path": "C:/Users/mlpa/PycharmProjects/Chatbot/2022ksci/train_AlzhBERT.py",
+    "settings.editor.selected.configurable": "com.jetbrains.python.configuration.PyActiveSdkModuleConfigurable"
   }
-}</component>
+}]]></component>
   <component name="PyConsoleOptionsProvider">
     <option name="myPythonConsoleState">
       <console-settings>
@@ -328,7 +330,7 @@
       <workItem from="1663651248765" duration="9242000" />
       <workItem from="1664351051568" duration="17000" />
       <workItem from="1665124573319" duration="83846000" />
-      <workItem from="1665571625114" duration="16679000" />
+      <workItem from="1665571625114" duration="17271000" />
     </task>
     <task id="LOCAL-00001" summary="Initial Commit">
       <created>1644142023959</created>
@@ -554,7 +556,14 @@
       <option name="project" value="LOCAL" />
       <updated>1665558294313</updated>
     </task>
-    <option name="localTasksCounter" value="33" />
+    <task id="LOCAL-00033" summary="221011~12: 동작 확인">
+      <created>1665591081675</created>
+      <option name="number" value="00033" />
+      <option name="presentableId" value="LOCAL-00033" />
+      <option name="project" value="LOCAL" />
+      <updated>1665591081675</updated>
+    </task>
+    <option name="localTasksCounter" value="34" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -604,10 +613,10 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
+    <option name="ADD_EXTERNAL_FILES_SILENTLY" value="true" />
     <ignored-roots>
       <path value="$PROJECT_DIR$/AlzheimerDetection" />
     </ignored-roots>
-    <MESSAGE value="여러가지 수정" />
     <MESSAGE value="1. bert_embedding batch 버전으로 수정 (O)&#10;2. preprocess, dataset 수정 (O)&#10;3. embedding='bert'에 따라 달라지는 코드 수정 (O)&#10;4. dataset 코드 corpus에 맞게 수정 (O)&#10;5. dataset에 train_test_split 메소드 추가 (O)&#10;5. bert_tokenize static 메소드로 변경 (O)&#10;6. corpus to_csv에서 라벨 이름 지정 (O)&#10;7. corpus data column -&gt; data_path column (O)" />
     <MESSAGE value="1. bert_embedding batch 버전으로 수정 (O)&#10;2. preprocess, dataset 수정 (O)&#10;3. embedding='bert'에 따라 달라지는 코드 수정 (O)&#10;4. dataset 코드 corpus에 맞게 수정 (O)&#10;5. dataset에 train_test_split 메소드 추가 (O)&#10;5. bert_tokenize static 메소드로 변경 (O)&#10;6. corpus to_csv에서 라벨 이름 지정 (O)&#10;7. corpus data column -&gt; data_path column (O)&#10;8. train 코드 작성 (O)" />
     <MESSAGE value="9. Embedding 코드 수정 (token_vecs 사용, pad_sequence로 input 생성 -&gt; cnn 모델에 맞도록)" />
@@ -632,7 +641,8 @@
     <MESSAGE value="220713: Embedding 수정" />
     <MESSAGE value="220810: position_embed, decoder 수정" />
     <MESSAGE value="221011~12" />
-    <option name="LAST_COMMIT_MESSAGE" value="221011~12" />
+    <MESSAGE value="221011~12: 동작 확인" />
+    <option name="LAST_COMMIT_MESSAGE" value="221011~12: 동작 확인" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>

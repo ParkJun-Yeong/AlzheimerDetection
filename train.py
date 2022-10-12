@@ -5,7 +5,7 @@ from torch.utils.tensorboard import SummaryWriter
 
 import os
 from datetime import datetime
-from tqdm import tqdm
+from tqdm import tqdm, trange
 
 from preprocess import Preprocess
 from dataset import DementiaDataset, collate_fn
@@ -22,7 +22,7 @@ def train_loop(dataloader, model, loss_fn, optimizer, epochs):
     size = len(dataloader.dataset)
     writer = SummaryWriter()
 
-    for epoch in range(epochs):
+    for epoch in trange(epochs):
         enc_loss_hist = []
         dec_loss_hist = []
         accuracy = []
@@ -31,9 +31,10 @@ def train_loop(dataloader, model, loss_fn, optimizer, epochs):
         valid_dec_hist = []
         valid_accuracy = []
 
-        print("======== epoch ", epoch, "==========\n")
+        print("======== EPOCH: ", epoch, "==========\n")
         for i, (Xs, ys) in tqdm(enumerate(dataloader), desc="Train..."):
-            X_folds,  y_folds = cross_validation(2, Xs, ys)
+            print("=====> ITERATION: ", i)
+            X_folds,  y_folds = cross_validation(5, Xs, ys)
             model.train()
 
             for X, y in zip(X_folds['train'], y_folds['train']):                    # Xf는 DataStruct의 리스트임
@@ -48,7 +49,7 @@ def train_loop(dataloader, model, loss_fn, optimizer, epochs):
                 y_dec = get_y_dec_list(X)
                 y_enc = get_y_enc_list(X, y)
                 # y_dec = torch.tensor(y_dec, requires_grad=True)
-                y_enc = torch.tensor(y_enc, requires_grad=True)
+                y_enc = torch.tensor(y_enc, requires_grad=True, device=device)
 
 
                 enc_preds, dec_preds = model(X)
@@ -66,14 +67,14 @@ def train_loop(dataloader, model, loss_fn, optimizer, epochs):
                 #         print(i, " 번째 iteration of X[1]")
                 #         continue
 
-                enc_preds = torch.stack(enc_preds)
+                enc_preds = torch.stack(enc_preds).to(device)
                 # dec_preds = torch.stack(dec_preds)
 
                 enc_loss = loss_fn(y_enc, enc_preds)
 
                 dec_losses = []
                 for i in range(len(dec_preds)):
-                    dec_losses.append(loss_fn(y_dec[i], dec_preds[i]))
+                    dec_losses.append(loss_fn(y_dec[i].to(device), dec_preds[i].to(device)))
 
                 dec_losses = torch.stack(dec_losses)
                 dec_loss = torch.mean(dec_losses)
@@ -152,8 +153,10 @@ def cross_validation_loop(X_fold, y_fold, model, loss_fn, epoch):
     dec_loss_hist = []
     accuracy = []
 
+    print("==========[[validatoin loop]]==============")
+
     with torch.no_grad():
-        for X, y in tqdm(zip(X_fold, y_fold), desc="[[validation loop...]]"):
+        for X, y in zip(X_fold, y_fold):
 
             y = torch.tensor(y, dtype=torch.float32).to(device)
             y_enc = get_y_enc_list(X, y)
@@ -162,12 +165,12 @@ def cross_validation_loop(X_fold, y_fold, model, loss_fn, epoch):
             enc_preds, dec_preds = model(X)
 
             y_enc = torch.tensor(y_enc, device=device)
-            enc_preds = torch.stack(enc_preds)
+            enc_preds = torch.stack(enc_preds).to(device)
             enc_loss = loss_fn(y_enc, enc_preds)
 
             dec_losses = []
             for i in range(len(y_dec)):
-                loss = loss_fn(y_dec[i], dec_preds[i])
+                loss = loss_fn(y_dec[i].to(device), dec_preds[i].to(device))
                 dec_losses.append(loss)
 
             dec_losses = torch.stack(dec_losses)
@@ -263,7 +266,7 @@ if __name__ == "__main__":
     embedding = 'bert'  # choose: bert, word2vec, glove, torch
 
     learning_rate = 1e-3
-    batch_size = 11        # 임의 지정. 바꾸기.
+    batch_size = 64        # 임의 지정. 바꾸기.
     epochs = 100
     dropout_rate = 0.1      # 논문 언급 없음.
     weight_decay = 2e-5
