@@ -7,11 +7,12 @@ import os
 from datetime import datetime
 from tqdm import tqdm, trange
 
-from preprocess import Preprocess
+# from preprocess import Preprocess
 from dataset import DementiaDataset, collate_fn
 from embedding import Embedding
 from AlzhBERT import AlzhBERT
 from utils import get_y_dec_list, get_y_enc_list
+import pytorch_model_summary
 
 device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
 print("device: ", device)
@@ -20,7 +21,8 @@ torch.autograd.set_detect_anomaly(True)
 def train_loop(dataloader, model, loss_fn, optimizer, epochs):
     # dataloader = dataloader["train"]
     size = len(dataloader.dataset)
-    writer = SummaryWriter()
+    writer = SummaryWriter("./runs_single")
+
 
     for epoch in trange(epochs):
         enc_loss_hist = []
@@ -34,17 +36,15 @@ def train_loop(dataloader, model, loss_fn, optimizer, epochs):
         print("======== EPOCH: ", epoch, "==========\n")
         for i, (Xs, ys) in tqdm(enumerate(dataloader), desc="Train..."):
             print("=====> ITERATION: ", i)
-            X_folds,  y_folds = cross_validation(5, Xs, ys)
+
+            X_folds,  y_folds = cross_validation(2, Xs, ys)
             model.train()
 
-            for X, y in zip(X_folds['train'], y_folds['train']):                    # Xf는 DataStruct의 리스트임
-                # print("<Check Data>")
-                # print("X 0: ", X[0])
-                # print("label 0: ", y[0])
+            if (epoch == 0) & (i == 0):
+                print(pytorch_model_summary.summary(model, X_folds["train"][0], show_input=True))
 
-                # Prediction and Loss
-                # X = batch_to_tensor(X)
-                # X = torch.tensor(X).to(device)
+
+            for X, y in zip(X_folds['train'], y_folds['train']):                    # Xf는 DataStruct의 리스트임
                 y = torch.tensor(y, dtype=torch.float32).to(device)
                 y_dec = get_y_dec_list(X)
                 y_enc = get_y_enc_list(X, y)
@@ -53,20 +53,6 @@ def train_loop(dataloader, model, loss_fn, optimizer, epochs):
 
 
                 enc_preds, dec_preds = model(X)
-
-                # for i in range(len(dec_preds)):
-                #     y_dec = X[1].sections[i].next_uttr.to(device)
-                #     dec_pred = dec_preds[i].to(device)
-                #     dec_loss = loss_fn(y_dec, dec_pred.requires_grad_(True))
-                #
-                #     try:
-                #         dec_optimizer.zero_grad()
-                #         dec_loss.backward()
-                #         dec_optimizer.step()
-                #     except RuntimeError:
-                #         print(i, " 번째 iteration of X[1]")
-                #         continue
-
                 enc_preds = torch.stack(enc_preds).to(device)
                 # dec_preds = torch.stack(dec_preds)
 
@@ -80,8 +66,10 @@ def train_loop(dataloader, model, loss_fn, optimizer, epochs):
                 dec_loss = torch.mean(dec_losses)
 
                 cls_out = [1 if enc >= 0.5 else 0 for enc in enc_preds]
-                accuracy.extend(cls_out)
-
+                acc = torch.tensor([1 if cls == enc else 0 for cls, enc in zip(cls_out, y_enc)],
+                                        dtype=torch.float32)
+                acc = torch.mean(acc)
+                accuracy.append(acc)
 
                 # Backpropagation
                 # enc_optimizer.zero_grad()
@@ -103,7 +91,7 @@ def train_loop(dataloader, model, loss_fn, optimizer, epochs):
                 enc_valid, dec_valid, acc_valid = cross_validation_loop(X_folds["valid"], y_folds["valid"], model, loss_fn, epoch)
                 valid_enc_hist.append(enc_valid)
                 valid_dec_hist.append(dec_valid)
-                valid_accuracy.extend(acc_valid)
+                valid_accuracy.append(acc_valid)
 
         enc_loss_save = torch.mean(torch.tensor(enc_loss_hist))
         dec_loss_save = torch.mean(torch.tensor(dec_loss_hist))
@@ -115,15 +103,15 @@ def train_loop(dataloader, model, loss_fn, optimizer, epochs):
 
         writer.add_scalar("Avg Enc Loss/train", enc_loss_save, epoch)
         writer.add_scalar("Avg Dec Loss/train", dec_loss_save, epoch)
-        writer.add_scalar("Avg Accuracy/train", accuracy_save)
+        writer.add_scalar("Avg Accuracy/train", accuracy_save, epoch)
 
         writer.add_scalar("Avg Enc Loss/valid", valid_enc_save, epoch)
-        writer.add_scalar("Avg Enc Loss/valid", valid_dec_save, epoch)
-        writer.add_scalar("Avg Enc Loss/valid", valid_acc_save, epoch)
+        writer.add_scalar("Avg Dec Loss/valid", valid_dec_save, epoch)
+        writer.add_scalar("Avg Accuracy Loss/valid", valid_acc_save, epoch)
 
 
         if device == "cuda":
-            saved_model_dir = "/home/juny/AlzheimerModel/checkpoint"
+            saved_model_dir = "/home/juny/AlzheimerModel/checkpoint_single"
         else:
             saved_model_dir = "./saved_model"
 
@@ -136,11 +124,12 @@ def train_loop(dataloader, model, loss_fn, optimizer, epochs):
         }, os.path.join(saved_model_dir,
                         now.strftime("%Y-%m-%d-%H-%M") + "-e" + str(epoch) + ".pt"))
 
-        # torch.save(model.state_dict(), os.path.join(saved_model_dir, "saved_model" + now.strftime("%Y-%m-%d-%H-%M") + ".pt"))
-        encloss, decloss, current = enc_loss_save, dec_loss_save, i * len(X)
-        print(f"enc loss: {encloss:>7f} dec loss: {decloss:>7f} [{current:>5d}/{size:>5d}")
-        encloss, decloss, current = valid_enc_save, valid_dec_save, i * len(X)
-        print(f"valid enc loss: {encloss:>7f} valid dec loss: {decloss:>7f} [{current:>5d}/{size:>5d}")
+        encloss, decloss = enc_loss_save, dec_loss_save
+        print(f"enc loss: {encloss:>7f} dec loss: {decloss:>7f}")
+        encloss, decloss = valid_enc_save, valid_dec_save
+        print(f"valid enc loss: {encloss:>7f} valid dec loss: {decloss:>7f}")
+
+
 
     writer.flush()
     writer.close()
@@ -151,7 +140,7 @@ def cross_validation_loop(X_fold, y_fold, model, loss_fn, epoch):
     model.eval()
     enc_loss_hist = []
     dec_loss_hist = []
-    accuracy = []
+    accuracy = None
 
     print("==========[[validatoin loop]]==============")
 
@@ -180,9 +169,14 @@ def cross_validation_loop(X_fold, y_fold, model, loss_fn, epoch):
             dec_loss_hist.append(dec_loss.item())
 
             cls_out = [1 if enc >= 0.5 else 0 for enc in enc_preds]
+
+            accuracy = torch.tensor([1 if cls == enc else 0 for cls, enc in zip(cls_out, y_enc)],
+                               dtype=torch.float32)
+            accuracy = torch.mean(accuracy)
+
     print("========== [[validation ends]] ===========")
 
-    return enc_loss, dec_loss, cls_out
+    return enc_loss, dec_loss, accuracy
 
 
 def validation_loop(dataloader, model, loss_fn, epoch):
@@ -268,20 +262,20 @@ if __name__ == "__main__":
 
     learning_rate = 1e-3
     batch_size = 64        # 임의 지정. 바꾸기.
-    epochs = 100
+    epochs = 70
     dropout_rate = 0.1      # 논문 언급 없음.
     weight_decay = 2e-5
     max_seq_length = 30    # 논문 언급 없음.
     seed = 1024
     num_classes = 2
 
-    pre = Preprocess()
+    # pre = Preprocess()
     if embedding == 'bert':
         embedding_size = 768
         vocab_size = None
     else:
         embedding_size = 100  # 여러 차원으로 실험해보기
-        vocab, vocab_size = pre.tokenize()
+        # vocab, vocab_size = pre.tokenize()
 
 
     # Dataloader
@@ -295,7 +289,7 @@ if __name__ == "__main__":
     # test_dataset = DementiaDataset(test=True)
     # test_dataloader = DataLoader(test_dataset, shuffle=False, collate_fn=collate_fn)
 
-    model = AlzhBERT(embedding_dim=embedding_size).to(device)
+    model = AlzhBERT(embedding_dim=embedding_size, mode="cnn").to(device)
     loss_fn = nn.MSELoss()
     optimizer = torch.optim.Adam(model.parameters(), lr=learning_rate, weight_decay=weight_decay)
 

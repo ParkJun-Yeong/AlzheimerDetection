@@ -11,12 +11,27 @@ device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
 
 
 class CNN1d(nn.Module):
-    def __init__(self):
+    def __init__(self, embedding_dim, num_kernels, kernel_size, stride):
         super(CNN1d, self).__init__()
-        self.cnn1d = nn.Conv1d()
+        self.cnn1d = nn.ModuleList([nn.Conv1d(in_channels=embedding_dim, out_channels=embedding_dim,
+                                              kernel_size=kernel_size, stride=stride).to(device) for _ in range(num_kernels)])
+        self.max1d = nn.MaxPool1d(kernel_size=2, stride=2).to(device)
+        self.relu = nn.ReLU()
+        self.embedding_dim = embedding_dim
 
     def forward(self, x):
-        return
+        x = x.permute(0,2,1)
+
+        feature_map = []
+        for cnn in self.cnn1d:
+            feature = cnn(x)
+            feature = self.relu(feature)
+            feature = self.max1d(feature).to(device)
+            feature_map.append(feature)
+
+        feature_map = torch.stack(feature_map)
+
+        return feature_map
 
 class SelfAttention(nn.Module):
     def __init__(self, embedding_dim, num_heads):
@@ -88,14 +103,29 @@ class Decoder(nn.Module):
 
         return out
 
-class AlzhBERT(nn.Module):
-    def __init__(self, embedding_dim):
-        super(AlzhBERT, self).__init__()
-        self.embedding_dim = embedding_dim
-        self.max_sent_length = 7
 
-        self.token_level_attn = nn.ModuleList([SelfAttention(self.embedding_dim, num_heads=8) for _ in range(10)]).requires_grad_(True)
-        self.token_level_attn_single = SelfAttention(self.embedding_dim, num_heads=8).requires_grad_(True)
+class AlzhBERT(nn.Module):
+    def __init__(self, mode, embedding_dim=100):
+        super(AlzhBERT, self).__init__()
+        super(AlzhBERT, self).__init__()
+
+        self.CONFIG_ = {"FIRST_MODULE_": mode,  # single of multi or cnn
+                        "EMBEDDING_": "bert"}
+
+        if self.CONFIG_["EMBEDDING_"] == "bert":
+            self.embedding_dim = 768
+        else:
+            self.embedding_dim = embedding_dim
+
+        self.max_sent_length = 10
+
+        if self.CONFIG_["FIRST_MODULE_"] == "multi":
+            self.token_level_attn = nn.ModuleList([SelfAttention(self.embedding_dim, num_heads=8) for _ in range(self.max_sent_length)]).requires_grad_(True)
+        elif self.CONFIG_["FIRST_MODULE_"] == "single":
+            self.token_level_attn = SelfAttention(self.embedding_dim, num_heads=8).requires_grad_(True)
+        elif self.CONFIG_["FIRST_MODULE_"] == "cnn":
+            self.token_level_cnns = nn.ModuleList([CNN1d(embedding_dim=embedding_dim, num_kernels=32, kernel_size=size, stride=1) for size in range(1,6)])
+
         self.sentence_level_attn = SelfAttention(self.embedding_dim, num_heads=8).requires_grad_(True)
 
         self.encoder = Encoder(embedding_dim=embedding_dim).requires_grad_(True)
@@ -106,42 +136,63 @@ class AlzhBERT(nn.Module):
 
         enc_outs = []
         dec_outs = []
-        for datastruct in tqdm(X_batch):
+        for datastruct in X_batch:
             j=0
             for section in datastruct.sections:
-                # print(i, " + ", j)
                 inv = section.inv.to(device)
                 y_dec = section.next_uttr.to(device)
                 par = section.par
-                # print(par)
                 try:
                     tmp = par.dim()
                 except AttributeError:
-                    # print(par)
-                    # print("attr err")
                     j = j+1
                     continue
 
-                # par = par.permute(1,0,2)                # (seq_len, sent_len, embed) => 한 번에 self attention
-                # 여러개 self_attention
-                # for p in par:
-                result = self.token_level_attn_single(par.to(device))[0]
-                res = torch.mean(result, dim=-2).unsqueeze(0)
+                enc_out = None
+                dec_out = None
+                cls_out = None
+                inv_input = None
+                context = None
 
-                res_sent = self.sentence_level_attn(res.to(device))[0]
-                context = torch.mean(res_sent, dim=-3)
+                if self.CONFIG_["FIRST_MODULE_"] == "single":
+                    result = self.token_level_attn(par.to(device))[0]
+                    res = torch.mean(result, dim=-2).unsqueeze(0)
+
+                    res_sent = self.sentence_level_attn(res.to(device))[0]
+                    context = torch.mean(res_sent, dim=-3)
+
+
+                if self.CONFIG_["FIRST_MODULE_"] == "multi":
+                    outputs = []
+                    for i in range(self.max_sent_length):
+                        try:
+                            output = self.token_level_attn[i](par[i].to(device))[0]
+                        except IndexError:
+                            pad_tensor = torch.zeros_like(par[0]).to(device)
+                            output = self.token_level_attn[i](pad_tensor)[0].to(device)
+                        outputs.append(output)
+                    context = torch.stack(outputs).to(device)
+
+                if self.CONFIG_["FIRST_MODULE_"] == "cnn":
+                    outputs = []
+                    for conv in self.token_level_cnns:
+                        output = conv(par.to(device))
+                        output = torch.mean(output, dim=0)
+                        output = output.permute(2,0,1)
+                        outputs.append(output)
+                    outputs = pad_sequence(outputs, batch_first=False)
+                    outputs = torch.mean(outputs, dim=0)
+                    context = outputs.transpose(0,1)
+
+                    context = self.sentence_level_attn(context)[0]
+                    context = torch.mean(context, dim=-3).unsqueeze(0)
+                    context = torch.mean(context, dim=-2)
 
                 inv_input = torch.mean(inv, dim=-2)
-                # x_enc = torch.concat((inv_input, context))
-                # x_enc = x_enc.view([1, -1, self.embedding_dim])
-
                 enc_out, cls_out = self.encoder(torch.cat([inv_input, context]).unsqueeze(0))
-                # enc_out, cls_out = self.encoder(x_enc)
-                # y_dec = torch.mean(y_dec, dim=-2).to(device)
-                # enc_out = torch.mean(enc_out, dim=-2).unsqueeze(0).to(device)
                 dec_out = self.decoder(y_dec, enc_out.to(device))
-
                 cls_out = torch.mean(cls_out)
+
                 enc_outs.append(cls_out)
                 dec_outs.append(dec_out)
 
