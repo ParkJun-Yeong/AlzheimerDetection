@@ -11,11 +11,14 @@ device = "cuda" if torch.cuda.is_available() else "cpu"
 if __name__ == "__main__":
     test_dataset = DementiaDataset(is_ts=True)
     test_dataloader = DataLoader(test_dataset, batch_size=len(test_dataset), shuffle=False, collate_fn=collate_fn)
-    mode = 'multi'
+    mode = 'single'
+
+    model = None
+    checkpoint = None
 
     if mode == "single":
         model = AlzhBERT(embedding_dim=768, mode="single").to(device)
-        checkpoint = torch.load("./saved_model/221014_single_self_attention/2022-10-14-16-02-e69.pt")
+        checkpoint = torch.load("./saved_model/2022-10-16-04-50-e65.pt")
     elif mode == "multi":
         model = AlzhBERT(embedding_dim=768, mode="multi").to(device)
         checkpoint = torch.load("./saved_model/221014_multi_self_attention/2022-10-14-21-43-e70.pt")
@@ -57,18 +60,7 @@ if __name__ == "__main__":
             # accuracy = torch.tensor(accuracy, dtype=torch.float32)
             accuracy = torch.mean(accuracy)
 
-            print()
-
-
-
-
-    result = pd.DataFrame({"avg_enc_loss-test": enc_loss,
-                           "avg_dec_loss_test: ": dec_loss,
-                           "avg_accuracy": accuracy})
-    result.to_csv("./result/221014_single_attention/avg_dec_loss.csv")
-
-
-
-
-
+            print("Enc Loss: ", enc_loss)
+            print("Dec Loss: ", dec_loss)
+            print("accurcay: ", accuracy)
 
