@@ -11,7 +11,7 @@ device = "cuda" if torch.cuda.is_available() else "cpu"
 if __name__ == "__main__":
     test_dataset = DementiaDataset(is_ts=True)
     test_dataloader = DataLoader(test_dataset, batch_size=len(test_dataset), shuffle=False, collate_fn=collate_fn)
-    mode = 'single'
+    mode = 'multi'
 
     model = None
     checkpoint = None
@@ -21,7 +21,10 @@ if __name__ == "__main__":
         checkpoint = torch.load("./saved_model/2022-10-16-04-50-e65.pt")
     elif mode == "multi":
         model = AlzhBERT(embedding_dim=768, mode="multi").to(device)
-        checkpoint = torch.load("./saved_model/221014_multi_self_attention/2022-10-14-21-43-e70.pt")
+        checkpoint = torch.load("./saved_model/2022-10-16-23-16-e65.pt")
+    elif mode == "cnn":
+        model = AlzhBERT(embedding_dim=768, mode="cnn").to(device)
+        checkpoint = torch.load("./saved_model/2022-10-16-16-17-e69.pt")
 
     model.load_state_dict(checkpoint["model_state_dict"])
 

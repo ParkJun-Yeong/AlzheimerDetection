@@ -312,7 +312,7 @@ if __name__ == "__main__":
     # test_dataset = DementiaDataset(test=True)
     # test_dataloader = DataLoader(test_dataset, shuffle=False, collate_fn=collate_fn)
 
-    model = AlzhBERT(embedding_dim=embedding_size, mode='single').to(device)
+    model = AlzhBERT(embedding_dim=embedding_size, mode='multi').to(device)
     loss_fn = nn.MSELoss()
     optimizer = torch.optim.Adam(model.parameters(), lr=learning_rate, weight_decay=weight_decay)
 

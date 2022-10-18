@@ -172,6 +172,7 @@ class AlzhBERT(nn.Module):
                             output = self.token_level_attn[i](pad_tensor)[0].to(device)
                         outputs.append(output)
                     context = torch.stack(outputs).to(device)
+                    context = torch.mean(context, dim=-2)
 
                 if self.CONFIG_["FIRST_MODULE_"] == "cnn":
                     outputs = []

@@ -1,6 +1,7 @@
 import pandas as pd
 import torch
 from torch.nn.utils.rnn import pad_sequence
+from torchtext.vocab import GloVe
 # from transformers import BertModel
 from pytorch_pretrained_bert import BertModel
 from preprocess import Preprocess
@@ -85,11 +86,42 @@ class Embedding:
         print("result embedding size: ", outputs.size())
 
         return outputs
+
+
+    """
+    sequences: 한 문장 혹은 여러 문장을 처리
+    corpus: 전체 말뭉치 처리
+    tokenizing은 dataset.py에서 처리
+    입력은 tokenized data만 받음
+    """
+    @staticmethod
+    def glove_embedding(sequences):
+        glove = GloVe(name="840B", dim=300)
+        pre = Preprocess()
+        tokenized_sequences, vocab = pre.tokenize(sentences=sequences)
+
+        embeddings = []
+        for seq in tqdm(tokenized_sequences, desc="Tokenizing and Embedding...."):
+            embedding = glove.get_vecs_by_tokens(seq, lower_case_backup=True)
+            embeddings.append(embedding)
+
+        embeddings = pad_sequence(embeddings).permute(1,0,2)
+        print("COMPLETE:", embeddings.size())
+
+        return embeddings
+
+
+
+
+import pandas as pd
 #
 #
-# if __name__ == "__main__":
+if __name__ == "__main__":
 #     sentence 자동 처리 (create embedded.csv)
 #     df = bert_embedding()
 #     df.to_csv("./dataset/embedded.csv", sep=",")
 #
 #     한 문장씩 처리하는 bert embedding layer 만들기
+    corpus = pd.read_csv("./dataset/corpus.csv")
+    texts = corpus.loc[:, "sentence"].values.tolist()
+    Embedding.glove_embedding(texts)

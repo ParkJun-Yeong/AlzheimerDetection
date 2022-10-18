@@ -3,7 +3,7 @@ import pandas as pd
 from torch.utils.data import Dataset
 from sklearn.model_selection import train_test_split
 from tqdm import trange
-# from embedding import Embedding
+from embedding import Embedding
 from preprocess import Preprocess
 import pickle
 import torch
@@ -47,28 +47,51 @@ class Dialogue:
 class DementiaDataset(Dataset):
     def __init__(self, is_tr=False, is_ts=False):
         super(DementiaDataset, self).__init__()
-
         if (not is_tr) & (not is_ts):
             print("!!!!!!!!!! Select is_tr or is_ts !!!!!!!!!!")
             exit()
 
-        self.is_tr = is_tr          # is train
-        self.is_ts = is_ts          # is test
+        self.is_tr = is_tr          # return train dataset
+        self.is_ts = is_ts          # return test dataset
 
+        self.CONFIG_ = {"REALTIME_EMBED_": False,
+                        "FIRST_EMBED_": True,
+                        "TYPE_OF_EMBED_": "glove300"}  # bert, glove100, glove300
 
         self.base_path = './dataset'
 
         """
         직접 임베딩
         """
-        # self.corpus = pd.read_csv(os.path.join(self.base_path, "corpus.csv"))
-        # self.corpus = Preprocess.fill_inv(self.corpus).drop(['index'], 1)         # index 항 제거 (pandas method로 해결 가능)
+        if self.CONFIG_["FIRST_EMBED_"]:
+            self.corpus = pd.read_csv(os.path.join(self.base_path, "corpus.csv"))
+            self.corpus = Preprocess.fill_inv(self.corpus).drop(['index'], 1)         # index 항 제거 (pandas method로 해결 가능)
+            self.sentences = self.corpus["setence"].astype("string")
+
+            if self.CONFIG_["TYPE_OF_EMBED_"] == "bert":
+                self.corpus_dict = [{'who': self.corpus.loc[:, "who"].values.tolist(),
+                                                          'sentence': Embedding.bert_embedding(self.corpus[i].loc[:, 'sentence'].values.tolist())} for i in range(552)]
+                with open("./dataset/embed_by_bert.pkl", 'wb') as f:
+                    pickle.dump(self.corpus_dict, f)
+
+
+            if self.CONFIG_["TYPE_OF_EMBED_"] == "glove300":
+                self.corpus_dict = [{'who': self.corpus.loc[:, "who"].values.tolist(),
+                                     'sentence': Embedding.glove_embedding(self.corpus[i].loc[:, "sentence"].values.tolist())} for i in range(552)]
+
+                with open("./dataset/embed_by_glove300.pkl", 'wb') as f:
+                    pickle.dump(self.corpus_dict, f)
 
         """
         임베딩 불러와서
         """
-        with open(os.path.join(self.base_path, "corpus_dict.pkl"), 'rb') as f:
-            self.corpus = pickle.load(f)
+        if self.CONFIG_["TYPE_OF_EMBED_"] == "bert":
+            with open(os.path.join(self.base_path, "embed_by_bert.pkl"), 'rb') as f:
+                self.corpus = pickle.load(f)
+
+        if self.CONFIG_["TYPE_OF_EMBED_"] == "glove300":
+            with open(os.path.join(self.base_path, "embed_by_glove300.pkl"), 'rb') as f:
+                self.corpus = pickle.load(f)
 
         self.corpus = Preprocess.fill_inv_from_dict(self.corpus)
         self.dataset = []

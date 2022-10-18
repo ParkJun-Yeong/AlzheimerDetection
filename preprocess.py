@@ -265,19 +265,24 @@ class Preprocess:
             self.corpus["sentence"][i] = sent.lower()
 
     # bert 임베딩이 아닐 경우, corpus 문장 전체를 토큰화 해 vocab 생성
-    def tokenize(self):
+    def tokenize(self, sentences):
         # 입력 corpus에 대해서 NLTK를 이용해 문장 토큰화 (생략. .csv 변환 과정에서 이미 문장 토큰화 완료.)
         # sent_text = sent_tokenize((corpus_text))
-
+        inner_mode = False
         # 각 문장에 대해서 NLTK를 이용해 단어 토큰화
+        sent = None
         vocab = []
         tokenized_sent = []
-        for sent in tqdm(self.corpus["sentence"], desc="Tokenizing words and Making vocabulary..."):
+
+        if inner_mode:
+            sent = self.corpus["sentence"]          # 원본 코드는 이거였음. 221018 기준.
+
+        sent = sentences
+        for sent in tqdm(sentences, desc="Tokenizing words and Making vocabulary..."):
             vocab.extend(word_tokenize(sent))
             tokenized_sent.append(word_tokenize(sent))
 
         vocab = set(vocab)
-
         return tokenized_sent, vocab
 
     # BERT Embedding 할 때 사용.
